@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Separo los escenario en dos partes lo cual me permite utilizar el mismo estado para diferentes comportamientos
+o el mismo comportamiento para diferentes estado.
+Este es el archivo que me describe el estado del escenario. 
+-->
+
+<!--
+En este pequeño escenario vamos a poner 5 casas (home1, home2, ..., home5) y una zona (zone1) y haremos que las personas (membranas h1) vayan a la zona y luego vuelvan a sus casas.
+-->
+
+<!--
+Por si te lias hay membranas que se llaman home1, home2, ..., home5 y hay objetos que se llaman home1, home2, ..., home5, son cosas diferentes.
+-->
+
+<model>
+  <config>
+<!--La membrana eco es la que contiene todo el sistema P dentro-->  
+    <membrane id="eco" m="1" capacity="1000000000">
+<!--La primera casa-->      
+      <membrane id="home1" m="1" capacity="10000">  
+<!--h1 son membranas que representan gente-->       
+        <membrane id="h1" m="1" capacity="1000">
+<!--cada membrana h1 tiene un objeto con el nombre de la membrana de su casa para saber a donde tiene que volver-->         
+          <BO v="home1" m="1"/>
+<!--este objeto indica que la persona se puede mover-->          
+          <BO v="move" m="1"/>
+<!--con el objeto v1 marcamos a esta personas como infectada-->           
+          <BO v="v1" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home1" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home1" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home1" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home1" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+      </membrane> 
+<!--La segunda casa-->
+      <membrane id="home2" m="1" capacity="10000">  
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home2" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home2" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home2" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home2" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home2" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+      </membrane> 
+<!--La tercera casa-->      
+      <membrane id="home3" m="1" capacity="10000">  
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home3" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home3" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home3" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home3" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home3" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+      </membrane> 
+<!--La cuarta casa-->      
+      <membrane id="home4" m="1" capacity="10000">  
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home4" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home4" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home4" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home4" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home4" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+      </membrane> 
+<!--La quinta casa-->      
+      <membrane id="home5" m="1" capacity="10000">  
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home5" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home5" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home5" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home5" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+        <membrane id="h1" m="1" capacity="1000">
+          <BO v="home5" m="1"/>
+          <BO v="move" m="1"/>
+        </membrane>
+      </membrane> 
+<!--esta es la zona a la que van a ir y volver las personas (representadas por membranas h1)-->      
+      <membrane id="zone1" m="1" capacity="10000">
+<!--este objeto "tonteria" no forma parte del minimodelo pero lo pongo para que veas un ejemplo de reglas OUT e IN-->      
+        <BO v="tonteria" m="10"/>
+      </membrane>
+    </membrane>
+  </config>
+</model>
