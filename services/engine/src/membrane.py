@@ -3,6 +3,7 @@ class Membrane:
         self._id = id
         self._m = m
         self._parent = parent
+        self._children = []
         self._objects = []
 
     @property
@@ -16,6 +17,18 @@ class Membrane:
     @property
     def multiplicity(self):
         return self._m
+    
+    def add_children(self, value):
+        """
+        Function to add children to the Membrane
+
+        Args:
+            value: Membrane or list of Membranes
+        """
+        if type(value) is list and all(isinstance(value, Membrane)):
+            self._children.extend(value)
+        elif isinstance(value, Membrane):
+            self._children.append(value)
 
 
 class MembraneObject:
