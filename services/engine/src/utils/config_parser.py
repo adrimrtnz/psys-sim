@@ -12,6 +12,7 @@ class ConfigParser:
             float: self.parser.getfloat
         }
         self._format = self.__read_field(tag='Input', field='Format', default='json')
+        self._scene  = self.__read_field(tag='Input', field='Scene', default='')
 
     def __read_field(self, tag: str, field: str, default, dtype: type = None):
         try:
@@ -22,3 +23,7 @@ class ConfigParser:
     @property
     def format(self):
         return self._format
+    
+    @property
+    def scene(self):
+        return self._scene
