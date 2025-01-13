@@ -11,7 +11,7 @@ class ConfigParser:
             int: self.parser.getint,
             float: self.parser.getfloat
         }
-        self._format = self.__read_field(tag='Input', field='Format', default='json')
+        self._format = self.__read_field(tag='Input', field='Format', default='xml')
         self._scene  = self.__read_field(tag='Input', field='Scene', default='')
 
     def __read_field(self, tag: str, field: str, default, dtype: type = None):
