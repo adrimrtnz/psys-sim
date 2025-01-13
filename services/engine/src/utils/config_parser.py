@@ -2,7 +2,7 @@ import configparser
 
 
 class ConfigParser:
-    def __init__(self, path: str):
+    def __init__(self, path: str = '../../config/config.ini'):
         self.parser = configparser.ConfigParser()
         self.parser.read(path)
         self.type_map = {
