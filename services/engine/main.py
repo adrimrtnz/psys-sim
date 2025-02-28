@@ -5,5 +5,5 @@ from src.classes.move_code_helper import MoveCodeHelper
 if __name__ == '__main__':
     config = ConfigParser()
     parser = SceneParserFactory(config)
-    parser.parse()
-    print(MoveCodeHelper.get_move_code('HERE'))
+    root = parser.parse()
+    root.print_structure()

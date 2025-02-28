@@ -1,11 +1,47 @@
+from typing import List
+
+class MembraneObject:
+    def __init__(self, v: str, m: int):
+        self._v = v
+        self._m = m
+
+    def __str__(self):
+        return f'OB - (v={self.value}, mul={self.multiplicity})'
+
+
+    @property
+    def value(self):
+        return self._v
+    
+    @property
+    def multiplicity(self):
+        return self._m
+    
+
 class Membrane:
-    def __init__(self, id: str, m: int, parent: 'Membrane' = None):
+    def __init__(self, id: str, m: int, capacity: int, parent: 'Membrane' = None):
         self._id = id
         self._m = m
+        self._cap = capacity
         self._parent = parent
         self._children = []
         self._objects = []
 
+    def __str__(self):
+        return f'Membrane - (id={self.id}, mul={self.multiplicity}, capacity={self.capacity})'
+
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def multiplicity(self):
+        return self._m
+    
+    @property
+    def capacity(self):
+        return self._cap
+    
     @property
     def parent(self):
         return self._parent
@@ -13,12 +49,16 @@ class Membrane:
     @parent.setter
     def parent(self, value):
         self._parent = value
+
+    @property
+    def children(self):
+        return self._children
     
     @property
-    def multiplicity(self):
-        return self._m
+    def objects(self):
+        return self._objects
     
-    def add_children(self, value):
+    def add_children(self, value: List['Membrane'] | 'Membrane'):
         """
         Function to add children to the Membrane
 
@@ -31,16 +71,22 @@ class Membrane:
             self._children.append(value)
 
 
-class MembraneObject:
-    def __init__(self, v: str, m: int):
-        self._v = v
-        self._m = m
+    def add_objects(self, value: List[MembraneObject] | MembraneObject):
+        """
+        Function to add objects to the Membrane
 
-    @property
-    def value(self):
-        return self._v
-    
-    @property
-    def multiplicity(self):
-        return self._m
-    
+        Args:
+            value: MembraneObject or list of MembraneObject
+        """
+        if type(value) is list and all(isinstance(value, MembraneObject)):
+            self._objects.extend(value)
+        elif isinstance(value, MembraneObject):
+            self._objects.append(value)
+
+    def print_structure(self, level=0):
+        print(f'{"   " * level}{str(self)}')
+        for ob in self.objects:
+            print(f'{"   " * level}  {str(ob)}')
+
+        for child in self.children:
+            child.print_structure(level + 1)
