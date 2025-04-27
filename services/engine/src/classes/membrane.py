@@ -18,8 +18,8 @@ class MembraneObject:
     
 
 class Membrane:
-    def __init__(self, id: str, m: int, capacity: int, parent: 'Membrane' = None):
-        self._id = id
+    def __init__(self, idx: str, m: int, capacity: int, parent: 'Membrane' = None):
+        self._id = idx
         self._m = m
         self._cap = capacity
         self._parent = parent
