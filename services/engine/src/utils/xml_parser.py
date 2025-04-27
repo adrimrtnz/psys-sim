@@ -1,5 +1,6 @@
 from xml.dom import minidom
-from src.classes.membrane import Membrane, MembraneObject
+from src.classes.membrane import Membrane
+from src.classes.membrane_object import MembraneObject
 from src.enums.constants import SceneObjects
 
 class XMLInputParser:
