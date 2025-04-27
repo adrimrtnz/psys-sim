@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from typing import Any
 
 class MultiSetInterface(ABC):
 
@@ -18,9 +18,9 @@ class MultiSetInterface(ABC):
         pass
 
     @abstractmethod
-    def add(self, _object, multiplicity) -> bool:
+    def add(self, obj: Any, multiplicity: int) -> bool:
         pass
 
     @abstractmethod
-    def remove(self, _object, multiplicity) -> bool:
+    def remove(self, obj: Any, multiplicity: int) -> bool:
         pass
