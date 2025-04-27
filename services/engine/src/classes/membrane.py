@@ -8,7 +8,6 @@ class MembraneObject:
     def __str__(self):
         return f'OB - (v={self.value}, mul={self.multiplicity})'
 
-
     @property
     def value(self):
         return self._v
@@ -65,8 +64,11 @@ class Membrane:
         Args:
             value: Membrane or list of Membranes
         """
-        if type(value) is list and all(isinstance(value, Membrane)):
-            self._children.extend(value)
+        if type(value) is list:
+            if all(isinstance(v, Membrane) for v in value):
+                self._children.extend(value)
+            else:
+                raise ValueError('All the children to add should be an instance of Membrane')
         elif isinstance(value, Membrane):
             self._children.append(value)
 
@@ -78,8 +80,11 @@ class Membrane:
         Args:
             value: MembraneObject or list of MembraneObject
         """
-        if type(value) is list and all(isinstance(value, MembraneObject)):
-            self._objects.extend(value)
+        if type(value) is list:
+            if all(isinstance(v, MembraneObject) for v in value):
+                self._objects.extend(value)
+            else:
+                raise ValueError('All the objects to add should be an instance of MembraneObject')
         elif isinstance(value, MembraneObject):
             self._objects.append(value)
 

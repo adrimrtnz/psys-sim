@@ -1,6 +1,6 @@
 from enum import Enum
 
-'''
+"""
 MoveCodes explanation:
     HERE: destination is the same region
     OUT: destination is the parent region
@@ -13,7 +13,7 @@ MoveCodes explanation:
     GROUP_TRANS: one region pass a % of some membranes to another region at the same level
     MEM_W_OB: move membranes with some specific object inside
     DMEM: MEM but does de transmition at the moment
-'''
+"""
 
 # TODO revisar todos los nombres para que sean más significativos
 
@@ -32,6 +32,6 @@ class MoveCodes(Enum):
     
 
 class SceneObjects():
-    '''Allow name changes with minor code impact'''
+    """Allow name changes with minor code impact"""
     MEMBRANE = 'membrane'
     OBJECT = 'BO'

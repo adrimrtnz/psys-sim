@@ -4,7 +4,7 @@ class MoveCodeHelper:
 
     @staticmethod
     def get_move_code(code: str):
-        '''Get the value of a move description'''
+        """Get the value of a move description"""
         move_code = MoveCodes.__members__.get(code, None)
         if move_code:
             return move_code.value

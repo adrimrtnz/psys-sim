@@ -37,6 +37,7 @@ class XMLInputParser:
             m_mul = node.getAttribute("m")
             m_cap = node.getAttribute("capacity")
             return m_id, m_mul, m_cap
+        return None
 
     def parse(self) -> Membrane:
         return self.iterate_node(self._root)
