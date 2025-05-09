@@ -10,9 +10,9 @@ class ObjectsMultiset(MultiSetInterface):
 
     def add(self, obj: str, multiplicity: int) -> bool:
         if obj is None:
-            raise ValueError("MembraneObject.add -> object cannot be null")
+            raise ValueError("ObjectsMultiset.add -> object cannot be null")
         if multiplicity < 0:
-            raise ValueError("MembraneObject.add -> object multiplicity cannot be negative")
+            raise ValueError("ObjectsMultiset.add -> object multiplicity cannot be negative")
         if multiplicity == 0:
             return False
         self._multiset[obj] = self._multiset.get(obj, 0) + multiplicity
@@ -20,9 +20,9 @@ class ObjectsMultiset(MultiSetInterface):
 
     def remove(self, obj: str, multiplicity: int) -> bool:
         if obj is None:
-            raise ValueError("MembraneObject.remove -> object cannot be null")
+            raise ValueError("ObjectsMultiset.remove -> object cannot be null")
         if multiplicity < 0:
-            raise ValueError("MembraneObject.remove -> object multiplicity cannot be negative")
+            raise ValueError("ObjectsMultiset.remove -> object multiplicity cannot be negative")
         if multiplicity == 0:
             return False
         current_multiplicity = self._multiset.get(obj, None)
