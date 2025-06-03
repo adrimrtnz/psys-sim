@@ -30,5 +30,9 @@ class MultiSetInterface(ABC):
         pass
 
     @abstractmethod
+    def sub(self, obj: Any, multiplicity: int) -> bool:
+        pass
+
+    @abstractmethod
     def remove(self, obj: Any, multiplicity: int) -> bool:
         pass

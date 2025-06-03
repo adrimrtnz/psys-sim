@@ -12,6 +12,20 @@ class ObjectsMultiset(MultiSetInterface):
         self.multiset[obj] = self.multiset.get(obj, 0) + multiplicity
         return True
 
+    def sub(self, obj: str, multiplicity: int = 1) -> bool:
+        if obj is None:
+            raise ValueError("ObjectsMultiset.sub -> object cannot be null")
+        if multiplicity < 0:
+            raise ValueError("ObjectsMultiset.sub -> object multiplicity cannot be negative")
+        if multiplicity == 0:
+            return False
+
+        count = self.multiset.get(obj, 0)
+        if count < multiplicity:
+            return False
+        self.multiset[obj] = self.multiset.get(obj, 0) + multiplicity
+        return True
+
     def contains(self, _object) -> bool:
         value = self.count(_object)
         return value > 0
