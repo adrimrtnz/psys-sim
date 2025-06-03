@@ -16,9 +16,10 @@ class XMLInputParser:
 
                 if child.nodeName == SceneObjects.MEMBRANE:
                     m_id, m_mul, m_cap = attr
-                    membrane = Membrane(m_id, m_mul, m_cap)
+                    membrane = Membrane(idx=m_id, multiplicity=m_mul, capacity=m_cap)
                     if parent:
                         parent.add_children(membrane)
+                        membrane.parent = parent
                     else:
                         parent = membrane
                     self.iterate_node(child, membrane)

@@ -4,13 +4,16 @@ from src.classes.objects_multiset import ObjectsMultiset
 
 
 class Membrane:
-    def __init__(self, idx: str, m: int, capacity: int, parent: 'Membrane' = None):
+    def __init__(self, idx: str, multiplicity : int, capacity: int, parent: 'Membrane' = None):
         self._id = idx
-        self._m = m
+        self._m = multiplicity
         self._cap = capacity
         self._parent = parent
         self._children = []
         self._objects = ObjectsMultiset()
+
+        self._alive = True
+        self._step = 0
 
     def __str__(self):
         return f'Membrane - (id={self.id}, mul={self.multiplicity}, capacity={self.capacity})'
