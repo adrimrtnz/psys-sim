@@ -59,7 +59,7 @@ class Membrane:
             self._children.append(value)
 
 
-    def add_objects(self, objects: List[MembraneObject] | MembraneObject):
+    def add_objects(self, objects: List[MembraneObject] | MembraneObject) -> bool:
         """
         Function to add objects to the Membrane
 
@@ -74,6 +74,7 @@ class Membrane:
                     raise ValueError('All the objects to add should be an instance of MembraneObject')
         elif isinstance(objects, MembraneObject):
             self._objects.add(objects.value, int(objects.multiplicity))
+        return True
 
     def print_structure(self, level=0):
         print(f'{"   " * level}{str(self)}')

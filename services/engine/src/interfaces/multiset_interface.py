@@ -6,8 +6,16 @@ class MultiSetInterface(ABC):
     def __init__(self):
         self._multiset = dict()
 
+    @property
+    def multiset(self):
+        return self._multiset
+
+    @multiset.setter
+    def multiset(self, multiset):
+        self._multiset = multiset
+
     def get_all(self):
-        return self._multiset.items()
+        return self.multiset.items()
 
     @abstractmethod
     def count(self, _object):

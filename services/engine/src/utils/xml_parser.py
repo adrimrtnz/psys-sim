@@ -25,10 +25,11 @@ class XMLInputParser:
                 elif child.nodeName == SceneObjects.OBJECT:
                     bo_v, bo_mul = attr
                     m_object = MembraneObject(v=bo_v, m=bo_mul)
-                    parent.add_objects(m_object)   
+                    parent.add_objects(m_object)
         return parent
 
-    def __get_node_attributes(self, node):
+    @staticmethod
+    def __get_node_attributes(node):
         if node.nodeName == SceneObjects.OBJECT:
             bo_v = node.getAttribute("v")
             bo_mul = node.getAttribute("m")
