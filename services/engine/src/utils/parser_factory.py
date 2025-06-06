@@ -1,7 +1,9 @@
+from src.utils.config_parser import ConfigParser
 from src.utils.xml_parser import XMLInputParser
 
 class SceneParserFactory:
-    def __new__(cls, config):
+    def __new__(cls):
+        config = ConfigParser()
         if config.format == 'xml':
             return XMLInputParser(config.scene, config.rules)
         raise NotImplementedError(f'Format {config.format} not implemented.')
