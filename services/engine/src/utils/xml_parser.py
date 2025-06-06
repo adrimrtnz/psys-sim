@@ -1,4 +1,6 @@
+from typing import Dict, List, Tuple
 from xml.dom import minidom
+
 from src.classes.rule import Rule
 from src.classes.membrane import Membrane
 from src.classes.membrane_object import MembraneObject
@@ -15,7 +17,7 @@ class XMLInputParser:
     def iterate_scene_node(self, node, parent : None | Membrane = None ) -> Membrane:
         for child in node.childNodes:
             if child.nodeType == minidom.Node.ELEMENT_NODE:
-                attr= self.__get_node_attributes(child)
+                attr = self.__get_node_attributes(child)
 
                 if child.nodeName == SceneObjects.MEMBRANE:
                     m_id, m_mul, m_cap = attr
@@ -32,7 +34,7 @@ class XMLInputParser:
                     parent.add_objects(m_object)
         return parent
     
-    def iterate_rules_node(self, node: minidom.Document):
+    def iterate_rules_node(self, node: minidom.Document) -> Tuple[List[str], Dict]:
         alphabet = []
         rules_mapping = dict()
 
@@ -54,7 +56,7 @@ class XMLInputParser:
                 rules_mapping[idx] = membrane_rules
         return alphabet, rules_mapping
 
-    def __build_rule(self, rule_node):
+    def __build_rule(self, rule_node) -> Rule:
         probability = rule_node.getAttribute('pb')
         priority = rule_node.getAttribute('pr')
         left_objects, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_LH))
@@ -62,7 +64,7 @@ class XMLInputParser:
         rule = Rule(left=left_objects, right=right_objects, prob=probability, prior=priority, type=type)
         return rule
 
-    def __extract_rule_objects(self, nodes):
+    def __extract_rule_objects(self, nodes) -> Tuple[Dict, str | None]:
         if len(nodes) == 0:
             return dict(), None
         nodes = nodes[0]
@@ -77,7 +79,7 @@ class XMLInputParser:
 
 
     @staticmethod
-    def __get_node_attributes(node):
+    def __get_node_attributes(node) -> List[str] | None:
         if node.nodeName == SceneObjects.OBJECT:
             bo_v = node.getAttribute('v')
             bo_mul = node.getAttribute('m')

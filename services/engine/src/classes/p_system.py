@@ -1,7 +1,10 @@
+from typing import Dict, List, Tuple
+
+from src.classes.rule import Rule
 from src.classes.membrane import Membrane
 
 class PSystem:
-    def __init__(self, alpha, membranes: Membrane, rules, out=None):
+    def __init__(self, alpha: Tuple, membranes: Dict[str, Membrane], rules: List[Rule], out=None):
         self._alpha = alpha
         self._membranes = membranes
         self._rules = rules
