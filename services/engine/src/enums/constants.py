@@ -7,11 +7,11 @@ MoveCodes explanation:
     IN: destination is a region whithin the current one
     MEM: destination of elements is other region at same level
     DISS: dissolve region and remove its elements
-    DISS_KEEP: dissolve region and its elements go to the parent
-    MEM_WC: marks a movement of one membrane between regions but in the transmitting región take a copy of the membrane
-    MEM_TRANS: MEM for plasmid transmision
+    DISS2: dissolve region and its elements go to the parent
+    MEMWC: marks a movement of one membrane between regions but in the transmitting región take a copy of the membrane
+    MEMTRANS: MEM for plasmid transmision
     GROUP_TRANS: one region pass a % of some membranes to another region at the same level
-    MEM_W_OB: move membranes with some specific object inside
+    MEMwOB: move membranes with some specific object inside
     DMEM: MEM but does de transmition at the moment
 """
 
