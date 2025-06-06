@@ -23,11 +23,11 @@ class MoveCodes(Enum):
     IN = 3
     MEM = 4
     DISS = 5
-    DISS_KEEP = 6   # Cambia nombre respecto a DISS2 (revisar dependencia)
-    MEM_WC = 7      # Cambia nombre respecto a MEMWC (revisar dependencia)
-    MEM_TRANS = 8   # Cambia nombre respecto a MEMTRANS (revisar dependencia)
+    DISS2 = 6   # DISS_KEEP
+    MEMWC = 7   
+    MEMTRANS = 8
     GROUP_TRANS = 9
-    MEM_W_OB = 10   # Cambia nombre respecto a MEMwOB (revisar dependencia)
+    MEMwOB = 10
     DMEM = 11
     
 
@@ -35,3 +35,6 @@ class SceneObjects():
     """Allow name changes with minor code impact"""
     MEMBRANE = 'membrane'
     OBJECT = 'BO'
+    OBJECT_RULE = 'rBO'
+    RULE_LH = 'lh'
+    RULE_RH = 'rh'

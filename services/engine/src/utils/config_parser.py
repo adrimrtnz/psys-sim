@@ -13,6 +13,7 @@ class ConfigParser:
         }
         self._format = self.__read_field(tag='Input', field='Format', default='xml')
         self._scene  = self.__read_field(tag='Input', field='Scene', default='')
+        self._rules  = self.__read_field(tag='Input', field='Rules', default='')
 
     def __read_field(self, tag: str, field: str, default, dtype: type = None):
         try:
@@ -27,3 +28,7 @@ class ConfigParser:
     @property
     def scene(self):
         return self._scene
+    
+    @property
+    def rules(self):
+        return self._rules

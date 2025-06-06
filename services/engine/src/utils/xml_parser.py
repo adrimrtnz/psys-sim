@@ -1,15 +1,18 @@
 from xml.dom import minidom
+from src.classes.rule import Rule
 from src.classes.membrane import Membrane
 from src.classes.membrane_object import MembraneObject
+from src.classes.p_system import PSystem
 from src.enums.constants import SceneObjects
 
 class XMLInputParser:
-    def __init__(self, scene):
-        self._scene = scene
-        doc = minidom.parse(f'../../scenes/{scene}.xml')
-        self._root = doc.getElementsByTagName('config')[0]
+    def __init__(self, scene: str, rules: str):
+        scene_doc = minidom.parse(f'../../scenes/{scene}.xml')
+        
+        self._rules = minidom.parse(f'../../rules/{rules}.xml')
+        self._scene_root = scene_doc.getElementsByTagName('config')[0]
 
-    def iterate_node(self, node, parent : None | Membrane = None ) -> Membrane:
+    def iterate_scene_node(self, node, parent : None | Membrane = None ) -> Membrane:
         for child in node.childNodes:
             if child.nodeType == minidom.Node.ELEMENT_NODE:
                 attr= self.__get_node_attributes(child)
@@ -22,26 +25,72 @@ class XMLInputParser:
                         membrane.parent = parent
                     else:
                         parent = membrane
-                    self.iterate_node(child, membrane)
+                    self.iterate_scene_node(child, membrane)
                 elif child.nodeName == SceneObjects.OBJECT:
                     bo_v, bo_mul = attr
                     m_object = MembraneObject(v=bo_v, m=bo_mul)
                     parent.add_objects(m_object)
         return parent
+    
+    def iterate_rules_node(self, node: minidom.Document):
+        alphabet = []
+        rules_mapping = dict()
+
+        alphabet_node = node.getElementsByTagName('alphabet')[0].getElementsByTagName('v')
+        membranes = node.getElementsByTagName('membranes')[0]
+
+        for item in alphabet_node:
+            alphabet.append(item.getAttribute('value'))
+        alphabet = tuple(alphabet)
+
+        for membrane in membranes.childNodes:
+            if membrane.nodeName == SceneObjects.MEMBRANE:
+                idx = membrane.getAttribute('ID')
+                rules = membrane.getElementsByTagName(SceneObjects.OBJECT_RULE)
+                membrane_rules = []
+                for rule in rules:
+                    rule_obj = self.__build_rule(rule)
+                    membrane_rules.append(rule_obj)
+                rules_mapping[idx] = membrane_rules
+        return alphabet, rules_mapping
+
+    def __build_rule(self, rule_node):
+        probability = rule_node.getAttribute('pb')
+        priority = rule_node.getAttribute('pr')
+        left_objects, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_LH))
+        right_objects, type = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_RH))
+        rule = Rule(left=left_objects, right=right_objects, prob=probability, prior=priority, type=type)
+        return rule
+
+    def __extract_rule_objects(self, nodes):
+        if len(nodes) == 0:
+            return dict(), None
+        nodes = nodes[0]
+        out = dict()
+        type = nodes.getAttribute('move') if nodes.nodeName == SceneObjects.RULE_RH else None
+        objects = nodes.getElementsByTagName(SceneObjects.OBJECT)
+        for obj in objects:
+            value = obj.getAttribute('v')
+            mult = obj.getAttribute('m')
+            out[value] = mult
+        return out, type
+
 
     @staticmethod
     def __get_node_attributes(node):
         if node.nodeName == SceneObjects.OBJECT:
-            bo_v = node.getAttribute("v")
-            bo_mul = node.getAttribute("m")
+            bo_v = node.getAttribute('v')
+            bo_mul = node.getAttribute('m')
             return  bo_v, bo_mul
         if node.nodeName == SceneObjects.MEMBRANE:
-            m_id  = node.getAttribute("id")
-            m_mul = node.getAttribute("m")
-            m_cap = node.getAttribute("capacity")
+            m_id  = node.getAttribute('id')
+            m_mul = node.getAttribute('m')
+            m_cap = node.getAttribute('capacity')
             return m_id, m_mul, m_cap
         return None
 
-    def parse(self) -> Membrane:
-        return self.iterate_node(self._root)
-
+    def parse(self) -> PSystem:
+        alphabet, rules = self.iterate_rules_node(self._rules)
+        membranes = self.iterate_scene_node(self._scene_root)
+        system = PSystem(alpha=alphabet, rules=rules, membranes=membranes)
+        return system

@@ -11,11 +11,12 @@ class Membrane:
         self._parent = parent
         self._children = []
         self._objects = ObjectsMultiset()
+        self._rules = None
 
         self._alive = True
         self._step = 0
 
-    def __str__(self):
+    def __repr__(self):
         return f'Membrane - (id={self.id}, mul={self.multiplicity}, capacity={self.capacity})'
 
     @property
@@ -45,6 +46,14 @@ class Membrane:
     @property
     def objects(self):
         return self._objects
+    
+    @property
+    def rules(self):
+        return self._rules
+    
+    @rules.setter
+    def rules(self, new_rules):
+        self._rules = new_rules
     
     def add_children(self, value: List['Membrane'] | 'Membrane'):
         """
@@ -82,7 +91,7 @@ class Membrane:
     def print_structure(self, level=0):
         print(f'{"   " * level}{str(self)}')
         for key, value in self.objects.get_all():
-            print(f'{"   " * level}  OB - (v={key}, mul={value})')
+            print(f'{"   " * level}  BO - (v={key}, mul={value})')
 
         for child in self.children:
             child.print_structure(level + 1)
