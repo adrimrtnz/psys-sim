@@ -1,7 +1,8 @@
+from typing import Dict
 from src.enums.constants import MoveCodes
 
 class Rule:
-    def __init__(self, left: str, right: str, prob = 1, prior = 1, type: str = MoveCodes.HERE):
+    def __init__(self, left: Dict, right: Dict, prob = 1, prior = 1, type: str = MoveCodes.HERE):
         self._left = left
         self._right = right
         self._prob = prob
