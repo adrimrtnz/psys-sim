@@ -1,4 +1,5 @@
 from typing import List
+from src.classes.rule import Rule
 from src.classes.membrane_object import MembraneObject
 from src.classes.objects_multiset import ObjectsMultiset
 

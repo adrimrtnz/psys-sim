@@ -21,3 +21,11 @@ class Rule:
     @property
     def right(self):
         return self._right
+    
+    @property
+    def move(self):
+        return self._move
+    
+    @property
+    def destination(self):
+        return self._destination

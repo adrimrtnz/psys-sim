@@ -1,8 +1,10 @@
+import random
+
 from typing import Dict, List, Tuple
 
 from src.classes.rule import Rule
 from src.classes.membrane import Membrane
-from src.enums.constants import InferenceType
+from src.enums.constants import InferenceType, MoveCode
 
 class PSystem:
     def __init__(self, alpha: Tuple, membranes: Dict[str, Membrane], rules: List[Rule], out: str=None, inference: str='sequential'):
@@ -33,14 +35,26 @@ class PSystem:
                 if membrane.objects.count(obj) >= m:
                     app_rules.append(rule)
         return app_rules
+    
+    def apply_rule(self, membrane: Membrane, rule: Rule):
+        move = rule.move
+        match move:
+            case MoveCode.OUT.name:
+                # TODO: Refactorizar esto
+                for obj, m in rule.left.items():
+                    membrane.objects.sub(obj=obj, multiplicity=m)
+                for obj, m in rule.right.items():
+                    membrane.parent.objects.add(obj=obj, multiplicity=m)
 
-    def applicable_rules_iter(self, membrane: Membrane):
-        # print('Parent', membrane.id, "Children", len(membrane.children.keys()))
+    def seq_step(self, membrane: Membrane):
         rules = self.applicable_rules(membrane)
-        print(membrane.id, rules)
+        if len(rules) > 0:
+            to_apply = random.choice(rules)
+            self.apply_rule(membrane, to_apply)
 
         for child in membrane.children:
-            self.applicable_rules_iter(child)
+            self.seq_step(child)
+
 
     def run(self):
         match self._inference:
@@ -51,4 +65,4 @@ class PSystem:
 
     def __sequential(self):
         print("Running sequential")
-        self.applicable_rules_iter(self._membranes)
+        self.seq_step(self._membranes)

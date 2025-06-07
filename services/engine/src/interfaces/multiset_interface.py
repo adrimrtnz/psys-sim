@@ -6,6 +6,9 @@ class MultiSetInterface(ABC):
     def __init__(self):
         self._multiset = dict()
 
+    def __repr__(self):
+        return str(self._multiset)
+
     @property
     def multiset(self):
         return self._multiset
