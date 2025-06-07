@@ -81,7 +81,7 @@ class XMLInputParser:
         dest = nodes.getAttribute('destination') if nodes.hasAttribute('destination') else None
         for obj in objects:
             value = obj.getAttribute('v')
-            mult = obj.getAttribute('m')
+            mult = int(obj.getAttribute('m'))
             out[value] = mult
         return out, move, dest
 
@@ -102,22 +102,22 @@ class XMLInputParser:
     def __get_node_attributes(node) -> List[str] | None:
         if node.nodeName == SceneObject.OBJECT:
             bo_v = node.getAttribute('v')
-            bo_mul = node.getAttribute('m')
+            bo_mul = int(node.getAttribute('m'))
             return  bo_v, bo_mul
         if node.nodeName == SceneObject.MEMBRANE:
             m_id  = node.getAttribute('id')
-            m_mul = node.getAttribute('m')
-            m_cap = node.getAttribute('capacity')
+            m_mul = int(node.getAttribute('m'))
+            m_cap = int(node.getAttribute('capacity'))
             return m_id, m_mul, m_cap
         return None
 
     def parse(self) -> PSystem:
         alphabet, rules = self.iterate_rules_node(self._rules)
         membrane_root = self.iterate_scene_node(self._scene_root)
-        membranes = self.__flatten_membrane_tree(membrane_root)
+        # membranes = self.__flatten_membrane_tree(membrane_root)
         system = PSystem(alpha=alphabet,
                          rules=rules,
-                         membranes=membranes,
+                         membranes=membrane_root,
                          out=membrane_root.id,
                          inference=self._config.inference)
         return system

@@ -12,3 +12,12 @@ class Rule:
 
     def __repr__(self):
         return f'Rule(right={self._left}, left={self._right}, prob={self._prob}, prior={self._prior}, move={self._move}, destination={self._destination})'
+
+
+    @property
+    def left(self):
+        return self._left
+    
+    @property
+    def right(self):
+        return self._right
