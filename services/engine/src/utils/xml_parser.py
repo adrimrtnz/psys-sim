@@ -1,3 +1,4 @@
+from collections import deque
 from typing import Dict, List, Tuple
 from xml.dom import minidom
 
@@ -8,10 +9,11 @@ from src.classes.p_system import PSystem
 from src.enums.constants import SceneObjects
 
 class XMLInputParser:
-    def __init__(self, scene: str, rules: str):
-        scene_doc = minidom.parse(f'../../scenes/{scene}.xml')
+    def __init__(self, config):
+        scene_doc = minidom.parse(f'../../scenes/{config.scene}.xml')
         
-        self._rules = minidom.parse(f'../../rules/{rules}.xml')
+        self._config = config
+        self._rules = minidom.parse(f'../../rules/{config.rules}.xml')
         self._scene_root = scene_doc.getElementsByTagName('config')[0]
 
     def iterate_scene_node(self, node, parent : None | Membrane = None ) -> Membrane:
@@ -59,24 +61,42 @@ class XMLInputParser:
     def __build_rule(self, rule_node) -> Rule:
         probability = rule_node.getAttribute('pb')
         priority = rule_node.getAttribute('pr')
-        left_objects, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_LH))
-        right_objects, type = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_RH))
-        rule = Rule(left=left_objects, right=right_objects, prob=probability, prior=priority, type=type)
+        left_objects, _, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_LH))
+        right_objects, move, dest = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_RH))
+        rule = Rule(left=left_objects,
+                    right=right_objects,
+                    prob=probability,
+                    prior=priority,
+                    move=move,
+                    destination=dest)
         return rule
 
     def __extract_rule_objects(self, nodes) -> Tuple[Dict, str | None]:
         if len(nodes) == 0:
-            return dict(), None
+            return dict(), None, None
         nodes = nodes[0]
         out = dict()
-        type = nodes.getAttribute('move') if nodes.nodeName == SceneObjects.RULE_RH else None
+        move = nodes.getAttribute('move') if nodes.nodeName == SceneObjects.RULE_RH else None
         objects = nodes.getElementsByTagName(SceneObjects.OBJECT)
+        dest = nodes.getAttribute('destination') if nodes.hasAttribute('destination') else None
         for obj in objects:
             value = obj.getAttribute('v')
             mult = obj.getAttribute('m')
             out[value] = mult
-        return out, type
+        return out, move, dest
 
+    def __flatten_membrane_tree(self, root: Membrane):
+        """
+        Flatten the membrane tree into a dictionary to O(1) access time.
+        """
+        out = dict()
+        membrane_queue = deque([root])        
+
+        while membrane_queue:
+            membrane = membrane_queue.popleft()
+            out[membrane.id] = membrane
+            membrane_queue.extend(membrane.children)
+        return out
 
     @staticmethod
     def __get_node_attributes(node) -> List[str] | None:
@@ -93,6 +113,11 @@ class XMLInputParser:
 
     def parse(self) -> PSystem:
         alphabet, rules = self.iterate_rules_node(self._rules)
-        membranes = self.iterate_scene_node(self._scene_root)
-        system = PSystem(alpha=alphabet, rules=rules, membranes=membranes)
+        membrane_root = self.iterate_scene_node(self._scene_root)
+        membranes = self.__flatten_membrane_tree(membrane_root)
+        system = PSystem(alpha=alphabet,
+                         rules=rules,
+                         membranes=membranes,
+                         out=membrane_root.id,
+                         inference=self._config.inference)
         return system
