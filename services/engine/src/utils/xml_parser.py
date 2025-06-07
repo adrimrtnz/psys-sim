@@ -88,6 +88,8 @@ class XMLInputParser:
     def __flatten_membrane_tree(self, root: Membrane):
         """
         Flatten the membrane tree into a dictionary to O(1) access time.
+
+        (WIP): Repensar esto, porque al tener membranas con mismo nombre (e.g. h1) colisiona
         """
         out = dict()
         membrane_queue = deque([root])        
