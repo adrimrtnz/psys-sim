@@ -17,7 +17,7 @@ MoveCodes explanation:
 
 # TODO revisar todos los nombres para que sean más significativos
 
-class MoveCodes(Enum):
+class MoveCode(Enum):
     HERE = 1
     OUT = 2
     IN = 3
@@ -31,10 +31,14 @@ class MoveCodes(Enum):
     DMEM = 11
     
 
-class SceneObjects():
+class SceneObject():
     """Allow name changes with minor code impact"""
     MEMBRANE = 'membrane'
     OBJECT = 'BO'
     OBJECT_RULE = 'rBO'
     RULE_LH = 'lh'
     RULE_RH = 'rh'
+
+
+class InferenceType():
+    SEQUENTIAL = 'sequential'

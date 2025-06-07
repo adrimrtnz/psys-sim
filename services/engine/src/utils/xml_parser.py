@@ -6,7 +6,7 @@ from src.classes.rule import Rule
 from src.classes.membrane import Membrane
 from src.classes.membrane_object import MembraneObject
 from src.classes.p_system import PSystem
-from src.enums.constants import SceneObjects
+from src.enums.constants import SceneObject
 
 class XMLInputParser:
     def __init__(self, config):
@@ -21,7 +21,7 @@ class XMLInputParser:
             if child.nodeType == minidom.Node.ELEMENT_NODE:
                 attr = self.__get_node_attributes(child)
 
-                if child.nodeName == SceneObjects.MEMBRANE:
+                if child.nodeName == SceneObject.MEMBRANE:
                     m_id, m_mul, m_cap = attr
                     membrane = Membrane(idx=m_id, multiplicity=m_mul, capacity=m_cap)
                     if parent:
@@ -30,7 +30,7 @@ class XMLInputParser:
                     else:
                         parent = membrane
                     self.iterate_scene_node(child, membrane)
-                elif child.nodeName == SceneObjects.OBJECT:
+                elif child.nodeName == SceneObject.OBJECT:
                     bo_v, bo_mul = attr
                     m_object = MembraneObject(v=bo_v, m=bo_mul)
                     parent.add_objects(m_object)
@@ -48,9 +48,9 @@ class XMLInputParser:
         alphabet = tuple(alphabet)
 
         for membrane in membranes.childNodes:
-            if membrane.nodeName == SceneObjects.MEMBRANE:
+            if membrane.nodeName == SceneObject.MEMBRANE:
                 idx = membrane.getAttribute('ID')
-                rules = membrane.getElementsByTagName(SceneObjects.OBJECT_RULE)
+                rules = membrane.getElementsByTagName(SceneObject.OBJECT_RULE)
                 membrane_rules = []
                 for rule in rules:
                     rule_obj = self.__build_rule(rule)
@@ -61,8 +61,8 @@ class XMLInputParser:
     def __build_rule(self, rule_node) -> Rule:
         probability = rule_node.getAttribute('pb')
         priority = rule_node.getAttribute('pr')
-        left_objects, _, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_LH))
-        right_objects, move, dest = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObjects.RULE_RH))
+        left_objects, _, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_LH))
+        right_objects, move, dest = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_RH))
         rule = Rule(left=left_objects,
                     right=right_objects,
                     prob=probability,
@@ -76,8 +76,8 @@ class XMLInputParser:
             return dict(), None, None
         nodes = nodes[0]
         out = dict()
-        move = nodes.getAttribute('move') if nodes.nodeName == SceneObjects.RULE_RH else None
-        objects = nodes.getElementsByTagName(SceneObjects.OBJECT)
+        move = nodes.getAttribute('move') if nodes.nodeName == SceneObject.RULE_RH else None
+        objects = nodes.getElementsByTagName(SceneObject.OBJECT)
         dest = nodes.getAttribute('destination') if nodes.hasAttribute('destination') else None
         for obj in objects:
             value = obj.getAttribute('v')
@@ -100,11 +100,11 @@ class XMLInputParser:
 
     @staticmethod
     def __get_node_attributes(node) -> List[str] | None:
-        if node.nodeName == SceneObjects.OBJECT:
+        if node.nodeName == SceneObject.OBJECT:
             bo_v = node.getAttribute('v')
             bo_mul = node.getAttribute('m')
             return  bo_v, bo_mul
-        if node.nodeName == SceneObjects.MEMBRANE:
+        if node.nodeName == SceneObject.MEMBRANE:
             m_id  = node.getAttribute('id')
             m_mul = node.getAttribute('m')
             m_cap = node.getAttribute('capacity')

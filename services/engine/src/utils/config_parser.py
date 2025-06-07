@@ -1,4 +1,5 @@
 import configparser
+from src.enums.constants import InferenceType
 
 
 class ConfigParser:
@@ -14,7 +15,7 @@ class ConfigParser:
         self._format = self.__read_field(tag='Input', field='Format', default='xml')
         self._scene  = self.__read_field(tag='Input', field='Scene', default='')
         self._rules  = self.__read_field(tag='Input', field='Rules', default='')
-        self._infer = self.__read_field(tag='Runtime', field='Inference', default='sequential')
+        self._infer = self.__read_field(tag='Runtime', field='Inference', default=InferenceType.SEQUENTIAL)
 
     def __read_field(self, tag: str, field: str, default, dtype: type = None):
         try:

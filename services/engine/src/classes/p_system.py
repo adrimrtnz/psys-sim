@@ -2,6 +2,7 @@ from typing import Dict, List, Tuple
 
 from src.classes.rule import Rule
 from src.classes.membrane import Membrane
+from src.enums.constants import InferenceType
 
 class PSystem:
     def __init__(self, alpha: Tuple, membranes: Dict[str, Membrane], rules: List[Rule], out: str=None, inference: str='sequential'):
@@ -21,3 +22,16 @@ class PSystem:
                 print(membrane)
                 for rule in rules:
                     print(f' - {rule}')
+
+    def applicable_rules(self, membrane: Membrane):
+        membrane_rules = self._rules[membrane.id]
+
+    def run(self):
+        match self._inference:
+            case InferenceType.SEQUENTIAL:
+                self.__sequential()
+            case _:
+                raise NotImplementedError(f'Inference type "{self._inference}" not Implemented')
+
+    def __sequential(self):
+        print("Running sequential")
