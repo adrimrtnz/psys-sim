@@ -7,7 +7,7 @@ from src.classes.membrane import Membrane
 from src.enums.constants import InferenceType, MoveCode
 
 class PSystem:
-    def __init__(self, alpha: Tuple, membranes: Dict[str, Membrane], rules: List[Rule], out: str=None, inference: str='sequential'):
+    def __init__(self, alpha: Tuple, membranes: Membrane, rules: List[Rule], out: str=None, inference: str='sequential'):
         self._alpha = alpha
         self._membranes = membranes
         self._rules = rules
@@ -37,9 +37,6 @@ class PSystem:
             left = rule.left
             if all(membrane.objects.count(obj) >= m for obj, m in left.items()):
                 app_rules.append(rule)
-        if (membrane.id == 'h1' and len(app_rules) > 0):
-            print(membrane.objects)
-            print("h1 rules ->", app_rules)
         return app_rules
     
     def apply_rule(self, membrane: Membrane, rule: Rule):
@@ -51,6 +48,12 @@ class PSystem:
             case MoveCode.HERE.name:
                 print(f' - Applicando HERE {membrane.id:>7} -> {rule}')
                 membrane.apply_here_rule(rule=rule)
+            case MoveCode.IN.name:
+                dest_idx = rule.destination
+                # For simplicity in this state of the development. In the given scenario IN rules are applied from parent to children
+                dest = next((child for child in membrane.children if child.id == dest_idx))
+                print(f' - Applicando IN {membrane.id:>9} -> {rule}')
+                membrane.apply_in_rule(rule=rule, destination=dest)
             case _:
                 print(f' - NO Applicada {membrane.id:>10} -> {rule}')
 
@@ -86,4 +89,5 @@ class PSystem:
             print(f'{"="*15} STEP {counter + 1} {"="*15}')
             self.seq_step(self._membranes)
             has_applied = self.apply_rules()
+            # self._membranes.print_structure()
             counter += 1

@@ -103,8 +103,12 @@ class Membrane:
         for obj, m in rule.right.items():
             self.parent.objects.add(obj=obj, multiplicity=m)
 
-    def apply_in_rule(self, rule: Rule):
-        pass
+    def apply_in_rule(self, rule: Rule, destination: 'Membrane'):
+        # TODO: Apply probability
+        for obj, m in rule.left.items():
+            self.objects.sub(obj=obj, multiplicity=m)
+        for obj, m in rule.right.items():
+            destination.objects.add(obj=obj, multiplicity=m)
 
 
     def print_structure(self, level=0):
