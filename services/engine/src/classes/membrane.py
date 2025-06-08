@@ -88,6 +88,24 @@ class Membrane:
         elif isinstance(objects, MembraneObject):
             self._objects.add(objects.value, int(objects.multiplicity))
         return True
+    
+    def apply_here_rule(self, rule: Rule):
+        # TODO: Apply probability
+        for obj, m in rule.left.items():
+            self.objects.sub(obj=obj, multiplicity=m)
+        for obj, m in rule.right.items():
+            self.objects.add(obj=obj, multiplicity=m)
+
+    def apply_out_rule(self, rule: Rule):
+        # TODO: Apply probability
+        for obj, m in rule.left.items():
+            self.objects.sub(obj=obj, multiplicity=m)
+        for obj, m in rule.right.items():
+            self.parent.objects.add(obj=obj, multiplicity=m)
+
+    def apply_in_rule(self, rule: Rule):
+        pass
+
 
     def print_structure(self, level=0):
         print(f'{"   " * level}{str(self)}')

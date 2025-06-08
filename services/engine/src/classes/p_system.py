@@ -13,6 +13,10 @@ class PSystem:
         self._rules = rules
         self._out = out
         self._inference = inference
+        self._rules_to_apply = []
+
+    def __add_rule_to_apply(self, membrane:Membrane, rule: Rule):
+        self._rules_to_apply.append((membrane, rule))
 
     def print_membranes(self):
         # root = next(iter(self._membranes))
@@ -31,38 +35,55 @@ class PSystem:
         app_rules = []
         for rule in membrane_rules:
             left = rule.left
-            for obj, m in left.items():
-                if membrane.objects.count(obj) >= m:
-                    app_rules.append(rule)
+            if all(membrane.objects.count(obj) >= m for obj, m in left.items()):
+                app_rules.append(rule)
+        if (membrane.id == 'h1' and len(app_rules) > 0):
+            print(membrane.objects)
+            print("h1 rules ->", app_rules)
         return app_rules
     
     def apply_rule(self, membrane: Membrane, rule: Rule):
         move = rule.move
         match move:
             case MoveCode.OUT.name:
-                # TODO: Refactorizar esto
-                for obj, m in rule.left.items():
-                    membrane.objects.sub(obj=obj, multiplicity=m)
-                for obj, m in rule.right.items():
-                    membrane.parent.objects.add(obj=obj, multiplicity=m)
+                print(f' - Applicando OUT {membrane.id:>8} -> {rule}')
+                membrane.apply_out_rule(rule=rule)
+            case MoveCode.HERE.name:
+                print(f' - Applicando HERE {membrane.id:>7} -> {rule}')
+                membrane.apply_here_rule(rule=rule)
+            case _:
+                print(f' - NO Applicada {membrane.id:>10} -> {rule}')
+
+    def apply_rules(self):
+        n_rules = len(self._rules_to_apply)
+        for m, r in self._rules_to_apply:
+            self.apply_rule(m, r)
+        self._rules_to_apply.clear()
+        return n_rules > 0
 
     def seq_step(self, membrane: Membrane):
         rules = self.applicable_rules(membrane)
-        if len(rules) > 0:
-            to_apply = random.choice(rules)
-            self.apply_rule(membrane, to_apply)
 
+        if len(rules) > 0:
+            to_apply = random.choice(rules) # TODO: Apply priority
+            self.__add_rule_to_apply(membrane, to_apply)
+        
         for child in membrane.children:
             self.seq_step(child)
 
-
-    def run(self):
+    def run(self, max_steps=None):
         match self._inference:
             case InferenceType.SEQUENTIAL:
-                self.__sequential()
+                self.__sequential(max_steps=max_steps)
             case _:
                 raise NotImplementedError(f'Inference type "{self._inference}" not Implemented')
 
-    def __sequential(self):
+    def __sequential(self, max_steps=None):
         print("Running sequential")
-        self.seq_step(self._membranes)
+        has_applied = True
+        counter = 0
+        while has_applied and (max_steps is None or counter < max_steps):
+            print(f'{"="*15} STEP {counter + 1} {"="*15}')
+            self.seq_step(self._membranes)
+            has_applied = self.apply_rules()
+            counter += 1

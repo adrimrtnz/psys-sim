@@ -11,7 +11,7 @@ class Rule:
         self._destination = destination
 
     def __repr__(self):
-        return f'Rule(right={self._left}, left={self._right}, prob={self._prob}, prior={self._prior}, move={self._move}, destination={self._destination})'
+        return f'Rule(left={self._left}, right={self._right}, prob={self._prob}, prior={self._prior}, move={self._move}, destination={self._destination})'
 
 
     @property
@@ -21,6 +21,14 @@ class Rule:
     @property
     def right(self):
         return self._right
+    
+    @property
+    def probability(self):
+        return self._prob
+    
+    @property
+    def priority(self):
+        return self._prior
     
     @property
     def move(self):

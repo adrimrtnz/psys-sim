@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model>
+<!--aquí se listan los objetos que aparecen en todo el escenario-->
+  <alphabet>
+    <v value="a"/>
+    <v value="b"/>
+    <v value="f"/>
+    <v value="d"/>
+    <v value="e"/>
+  </alphabet>
+<!--en este apartado se describen las reglas de cada membrana-->  
+  <membranes>
+  </membranes>
+
+</model>         
