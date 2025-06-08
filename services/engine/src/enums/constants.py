@@ -34,6 +34,7 @@ class MoveCode(Enum):
 class SceneObject():
     """Allow name changes with minor code impact"""
     MEMBRANE = 'membrane'
+    MEMBRANE_RULE = 'rMM'
     OBJECT = 'BO'
     OBJECT_RULE = 'rBO'
     RULE_LH = 'lh'

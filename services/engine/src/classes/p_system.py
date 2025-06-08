@@ -1,10 +1,10 @@
-import random
+import numpy as np
 
 from typing import Dict, List, Tuple
 
 from src.classes.rule import Rule
 from src.classes.membrane import Membrane
-from src.enums.constants import InferenceType, MoveCode
+from src.enums.constants import InferenceType, MoveCode, SceneObject
 
 class PSystem:
     def __init__(self, alpha: Tuple, membranes: Membrane, rules: List[Rule], out: str=None, inference: str='sequential'):
@@ -31,13 +31,22 @@ class PSystem:
                     print(f' - {rule}')
 
     def applicable_rules(self, membrane: Membrane):
-        membrane_rules = self._rules[membrane.id]
-        app_rules = []
-        for rule in membrane_rules:
+        membrane_obj_rules = self._rules.get((membrane.id, SceneObject.OBJECT_RULE), [])
+        membrane_mem_rules = self._rules.get((membrane.id, SceneObject.MEMBRANE_RULE), [])
+        app_obj_rules = []
+        app_mem_rules = []
+
+        for rule in membrane_obj_rules:
             left = rule.left
             if all(membrane.objects.count(obj) >= m for obj, m in left.items()):
-                app_rules.append(rule)
-        return app_rules
+                app_obj_rules.append((membrane.id, 0, 0, rule))
+        for rule in membrane_mem_rules:
+            idx = rule.idx
+            children = [child for child in membrane.children if child.id == idx]
+            for i, child in enumerate(children):
+                if all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
+                    app_mem_rules.append((membrane.id, child.id, i, rule))
+        return app_obj_rules + app_mem_rules
     
     def apply_rule(self, membrane: Membrane, rule: Rule):
         move = rule.move
@@ -59,18 +68,34 @@ class PSystem:
 
     def apply_rules(self):
         n_rules = len(self._rules_to_apply)
-        for m, r in self._rules_to_apply:
+        for m, (m_id, ch_id, i, r) in self._rules_to_apply:
             self.apply_rule(m, r)
         self._rules_to_apply.clear()
         return n_rules > 0
 
     def seq_step(self, membrane: Membrane):
         rules = self.applicable_rules(membrane)
+        probs = tuple()
 
         if len(rules) > 0:
-            to_apply = random.choice(rules) # TODO: Apply priority
-            self.__add_rule_to_apply(membrane, to_apply)
-        
+            if rules[0][-1].move != MoveCode.MEMwOB.name:
+                probs = tuple(rule.probability for _,_,_,rule in rules)
+
+            # If probs we have object rules
+            if len(probs) > 0:
+                total_prob = sum(probs)
+                probs = tuple([*probs, 1 - total_prob])
+                indexes = list(range(len(rules))) + [-1]
+                rule_idx = np.random.choice(indexes, p=probs)
+                if rule_idx != -1:
+                    to_apply = rules[rule_idx]
+                    self.__add_rule_to_apply(membrane, to_apply)
+            # If not, we have membrane rules. Apply for each child in children
+            else:
+                for rule in rules:
+                    if np.random.random() < rule[-1].probability:
+                        self.__add_rule_to_apply(membrane, rule)
+
         for child in membrane.children:
             self.seq_step(child)
 

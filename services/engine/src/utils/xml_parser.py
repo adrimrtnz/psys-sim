@@ -50,17 +50,25 @@ class XMLInputParser:
         for membrane in membranes.childNodes:
             if membrane.nodeName == SceneObject.MEMBRANE:
                 idx = membrane.getAttribute('ID')
-                rules = membrane.getElementsByTagName(SceneObject.OBJECT_RULE)
-                membrane_rules = []
-                for rule in rules:
-                    rule_obj = self.__build_rule(rule)
-                    membrane_rules.append(rule_obj)
-                rules_mapping[idx] = membrane_rules
+                obj_rules = membrane.getElementsByTagName(SceneObject.OBJECT_RULE)
+                mem_rules = membrane.getElementsByTagName(SceneObject.MEMBRANE_RULE)
+                
+                membrane_obj_rules = []
+                membrane_mem_rules = []
+                for rule in obj_rules:
+                    built_rule = self.__build_obj_rule(rule)
+                    membrane_obj_rules.append(built_rule)
+
+                for rule in mem_rules:
+                    built_rule = self.__build_mem_rule(rule)
+                    membrane_mem_rules.append(built_rule)
+                rules_mapping[idx, SceneObject.OBJECT_RULE] = membrane_obj_rules
+                rules_mapping[idx, SceneObject.MEMBRANE_RULE] = membrane_mem_rules
         return alphabet, rules_mapping
 
-    def __build_rule(self, rule_node) -> Rule:
-        probability = rule_node.getAttribute('pb')
-        priority = rule_node.getAttribute('pr')
+    def __build_obj_rule(self, rule_node) -> Rule:
+        probability = float(rule_node.getAttribute('pb'))
+        priority = float(rule_node.getAttribute('pr'))
         left_objects, _, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_LH))
         right_objects, move, dest = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_RH))
         rule = Rule(left=left_objects,
@@ -69,6 +77,20 @@ class XMLInputParser:
                     prior=priority,
                     move=move,
                     destination=dest)
+        return rule
+    
+    def __build_mem_rule(self, rule_node) -> Rule:
+        probability = float(rule_node.getAttribute('pb'))
+        priority = float(rule_node.getAttribute('pr'))
+        left_objects, _, _, _ = self.__extract_rule_membrane_objects(rule_node.getElementsByTagName(SceneObject.RULE_LH))
+        right_objects, move, dest, idx = self.__extract_rule_membrane_objects(rule_node.getElementsByTagName(SceneObject.RULE_RH))
+        rule = Rule(left=left_objects,
+                    right=right_objects,
+                    prob=probability,
+                    prior=priority,
+                    move=move,
+                    destination=dest,
+                    idx=idx)
         return rule
 
     def __extract_rule_objects(self, nodes) -> Tuple[Dict, str | None]:
@@ -84,6 +106,13 @@ class XMLInputParser:
             mult = int(obj.getAttribute('m'))
             out[value] = mult
         return out, move, dest
+    
+    def __extract_rule_membrane_objects(self, nodes) -> Tuple[Dict, str | None]:
+        if len(nodes) == 0:
+            return dict(), None, None
+        nodes = nodes[0]
+        idx = nodes.getElementsByTagName('MEMwOB')[0].getAttribute('id')
+        return *self.__extract_rule_objects([nodes]), idx
 
     def __flatten_membrane_tree(self, root: Membrane):
         """
