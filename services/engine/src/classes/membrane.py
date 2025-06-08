@@ -131,3 +131,45 @@ class Membrane:
 
         for child in self.children:
             child.print_structure(level + 1)
+
+    def generate_html(self, level=0):
+        html_output = f'<div class="rectangulo level-{level}">\n'
+        html_output += f'  <div class="contenido">\n'
+        html_output += f'    <h2>{str(self)}</h2>\n'
+        html_output += f'<p>{str(self.objects)}'
+        html_output += f'  </div>\n'
+
+        for child in self.children:
+            html_output += child.generate_html(level + 1)
+        html_output += '</div>\n'
+        return html_output
+
+    def plot_structure(self, step: int):
+        css_styles = """
+        .rectangulo {
+            border: 2px solid black; /* Borde del rectángulo */
+            border-radius: 10px;     /* Esquinas redondeadas */
+            padding: 10px;           /* Espacio interior */
+            margin: 10px;            /* Espacio exterior */
+            background-color: #f9f9f9;
+        }
+        .contenido h2 { margin-top: 0; color: #005a9c; }
+        .contenido p { color: #c93756; font-family: monospace; }
+        """
+        body_content = self.generate_html()
+        html_final = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>PSystem Step {step}</title>
+            <style>{css_styles}</style>
+        </head>
+        <body>
+        {body_content}
+        </body>
+        </html>
+            """
+        path = f'../../plots/{step:04}.html'
+        with open(path, 'w+', encoding='utf-8') as f:
+            f.write(html_final)
