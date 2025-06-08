@@ -14,4 +14,4 @@ if __name__ == '__main__':
     system.run(config.max_steps)
 
     print('================== FINAL MEMBRANE STRUCTURE ==================')
-    # system.print_membranes()
+    system.print_membranes()
