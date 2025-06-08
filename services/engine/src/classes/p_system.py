@@ -53,24 +53,24 @@ class PSystem:
         move = rule.move
         match move:
             case MoveCode.OUT.name:
-                trace = f' - Applicando OUT {membrane.id:>12} -> {rule}'
+                trace = f' - Applicando OUT {membrane.id:>8} -> {rule}'
                 membrane.apply_out_rule(rule=rule)
             case MoveCode.HERE.name:
-                trace = f' - Applicando HERE {membrane.id:>11} -> {rule}'
+                trace = f' - Applicando HERE {membrane.id:>7} -> {rule}'
                 membrane.apply_here_rule(rule=rule)
             case MoveCode.IN.name:
                 dest_idx = rule.destination
                 # For simplicity in this state of the development. In the given scenario IN rules are applied from parent to children
                 dest = next((child for child in membrane.children if child.id == dest_idx))
-                trace = f' - Applicando IN {membrane.id:>13} -> {rule}'
+                trace = f' - Applicando IN {membrane.id:>8} -> {rule}'
                 membrane.apply_in_rule(rule=rule, destination=dest)
             case MoveCode.MEMwOB.name:
                 dest_idx = rule.destination
                 dest = next((child for child in self._membranes.children if child.id == dest_idx))
-                trace = f' - Applicando MEMwOB {membrane.id:>9} -> {rule}, Index Hijo: {child_index} desde {mem_id} a {dest.id}'
+                trace = f' - Applicando MEMwOB {membrane.id:>5} -> {rule}, Child Nº {child_index} from {mem_id} to {dest.id}'
                 membrane.apply_move_mem_rule(rule=rule, destination=dest, child_idx=child_index)
             case _:
-                trace = f' - NO Applicada {membrane.id:>10} -> {rule}'
+                trace = f' - NO Applicada {membrane.id:>5} -> {rule}'
         return trace
 
     def apply_rules(self, trace_file = None):
