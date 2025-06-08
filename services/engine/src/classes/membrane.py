@@ -110,6 +110,19 @@ class Membrane:
         for obj, m in rule.right.items():
             destination.objects.add(obj=obj, multiplicity=m)
 
+    def add_child(self, child: 'Membrane'):
+        self._children.append(child)
+        return True
+
+    def remove_child(self, child_idx):
+        child = self._children.pop(child_idx)
+        return child
+
+    def apply_move_mem_rule(self, rule: Rule, destination: 'Membrane', child_idx: int):
+        child = self.remove_child(child_idx)
+        child.apply_here_rule(rule)
+        destination.add_child(child)
+
 
     def print_structure(self, level=0):
         print(f'{"   " * level}{str(self)}')

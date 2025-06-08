@@ -7,10 +7,10 @@ if __name__ == '__main__':
     system = parser.parse()
     
     print('==================== MEMBRANE STRUCTURE ====================')
-    system.print_membranes()
+    #system.print_membranes()
 
     print('\n\n========================== RULES ===========================')
-    system.print_rules()
+    # system.print_rules()
     system.run(config.max_steps)
 
     print('==================== MEMBRANE STRUCTURE ====================')

@@ -46,55 +46,58 @@ class PSystem:
             for i, child in enumerate(children):
                 if all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
-        return app_obj_rules + app_mem_rules
+        return app_obj_rules, list(reversed(app_mem_rules))
     
-    def apply_rule(self, membrane: Membrane, rule: Rule):
+    def apply_rule(self, membrane: Membrane, data):
+        mem_id, child_id, child_index, rule = data
         move = rule.move
         match move:
             case MoveCode.OUT.name:
-                print(f' - Applicando OUT {membrane.id:>8} -> {rule}')
+                print(f' - Applicando OUT {membrane.id:>12} -> {rule}')
                 membrane.apply_out_rule(rule=rule)
             case MoveCode.HERE.name:
-                print(f' - Applicando HERE {membrane.id:>7} -> {rule}')
+                print(f' - Applicando HERE {membrane.id:>11} -> {rule}')
                 membrane.apply_here_rule(rule=rule)
             case MoveCode.IN.name:
                 dest_idx = rule.destination
                 # For simplicity in this state of the development. In the given scenario IN rules are applied from parent to children
                 dest = next((child for child in membrane.children if child.id == dest_idx))
-                print(f' - Applicando IN {membrane.id:>9} -> {rule}')
+                print(f' - Applicando IN {membrane.id:>13} -> {rule}')
                 membrane.apply_in_rule(rule=rule, destination=dest)
+            case MoveCode.MEMwOB.name:
+                dest_idx = rule.destination
+                dest = next((child for child in self._membranes.children if child.id == dest_idx))
+                print(f' - Applicando MEMwOB {membrane.id:>9} -> {rule}')
+                membrane.apply_move_mem_rule(rule=rule, destination=dest, child_idx=child_index)
             case _:
                 print(f' - NO Applicada {membrane.id:>10} -> {rule}')
 
     def apply_rules(self):
         n_rules = len(self._rules_to_apply)
-        for m, (m_id, ch_id, i, r) in self._rules_to_apply:
-            self.apply_rule(m, r)
+        for m, data in self._rules_to_apply:
+            self.apply_rule(m, data)
         self._rules_to_apply.clear()
         return n_rules > 0
 
     def seq_step(self, membrane: Membrane):
-        rules = self.applicable_rules(membrane)
+        obj_rules, mem_rule = self.applicable_rules(membrane)
         probs = tuple()
 
-        if len(rules) > 0:
-            if rules[0][-1].move != MoveCode.MEMwOB.name:
-                probs = tuple(rule.probability for _,_,_,rule in rules)
+        if len(obj_rules) > 0:
+            probs = tuple(rule.probability for _,_,_,rule in obj_rules)
+            print(f" - {membrane.id} - PROBS {probs}")
 
-            # If probs we have object rules
-            if len(probs) > 0:
-                total_prob = sum(probs)
-                probs = tuple([*probs, 1 - total_prob])
-                indexes = list(range(len(rules))) + [-1]
-                rule_idx = np.random.choice(indexes, p=probs)
-                if rule_idx != -1:
-                    to_apply = rules[rule_idx]
-                    self.__add_rule_to_apply(membrane, to_apply)
-            # If not, we have membrane rules. Apply for each child in children
-            else:
-                for rule in rules:
-                    if np.random.random() < rule[-1].probability:
-                        self.__add_rule_to_apply(membrane, rule)
+            total_prob = sum(probs)
+            probs = tuple([*probs, 1 - total_prob])
+            indexes = list(range(len(obj_rules))) + [-1]
+            rule_idx = np.random.choice(indexes, p=probs)
+            if rule_idx != -1:
+                to_apply = obj_rules[rule_idx]
+                self.__add_rule_to_apply(membrane, to_apply)
+
+        for rule in mem_rule:
+            if np.random.random() < rule[-1].probability:
+                self.__add_rule_to_apply(membrane, rule)
 
         for child in membrane.children:
             self.seq_step(child)
@@ -114,5 +117,5 @@ class PSystem:
             print(f'{"="*15} STEP {counter + 1} {"="*15}')
             self.seq_step(self._membranes)
             has_applied = self.apply_rules()
-            # self._membranes.print_structure()
+            self._membranes.print_structure()
             counter += 1
