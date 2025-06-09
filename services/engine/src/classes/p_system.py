@@ -42,9 +42,8 @@ class PSystem:
                 app_obj_rules.append((membrane.id, 0, 0, rule))
         for rule in membrane_mem_rules:
             idx = rule.idx
-            children = [child for child in membrane.children if child.id == idx]
-            for i, child in enumerate(children):
-                if all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
+            for i, child in enumerate(membrane.children):
+                if child.id == idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
         return app_obj_rules, list(reversed(app_mem_rules))
     
@@ -62,7 +61,7 @@ class PSystem:
                 dest_idx = rule.destination
                 # For simplicity in this state of the development. In the given scenario IN rules are applied from parent to children
                 dest = next((child for child in membrane.children if child.id == dest_idx))
-                trace = f' - Applicando IN {membrane.id:>8} -> {rule}'
+                trace = f' - Applicando IN {membrane.id:>9} -> {rule}'
                 membrane.apply_in_rule(rule=rule, destination=dest)
             case MoveCode.MEMwOB.name:
                 dest_idx = rule.destination

@@ -122,6 +122,7 @@ class Membrane:
         child = self.remove_child(child_idx)
         child.apply_here_rule(rule)
         destination.add_child(child)
+        child.parent = destination
 
 
     def print_structure(self, level=0):
