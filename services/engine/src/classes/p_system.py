@@ -35,14 +35,22 @@ class PSystem:
         membrane_mem_rules = self._rules.get((membrane.id, SceneObject.MEMBRANE_RULE), [])
         app_obj_rules = []
         app_mem_rules = []
+        max_priority = -1
 
         for rule in membrane_obj_rules:
             left = rule.left
             if all(membrane.objects.count(obj) >= m for obj, m in left.items()):
+                if rule.priority > max_priority:
+                    max_priority = rule.priority
+                    # If we find a more dominant rule over the already seen ones, clear the list
+                    app_obj_rules.clear()
+                if rule.priority < max_priority:
+                    continue
                 app_obj_rules.append((membrane.id, 0, 0, rule))
-        for rule in membrane_mem_rules:
-            idx = rule.idx
-            for i, child in enumerate(membrane.children):
+
+        for i, child in enumerate(membrane.children):
+            for rule in membrane_mem_rules:
+                idx = rule.idx
                 if child.id == idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
         return app_obj_rules, list(reversed(app_mem_rules))
@@ -82,25 +90,23 @@ class PSystem:
 
     def seq_step(self, membrane: Membrane, trace_file=None):
         obj_rules, mem_rule = self.applicable_rules(membrane)
-        probs = tuple()
+        all_rules = obj_rules + mem_rule
 
-        if len(obj_rules) > 0:
-            probs = tuple(rule.probability for _,_,_,rule in obj_rules)
+        if len(all_rules) > 0:
+            probs = np.array([rule.probability for _,_,_,rule in all_rules])
+            total_prob = probs.sum()
+            indexes = list(range(len(all_rules)))
 
-            total_prob = sum(probs)
-            probs = tuple([*probs, 1 - total_prob])
-            indexes = list(range(len(obj_rules))) + [-1]
+            if total_prob > 1.0:
+                # Normalize if prob is greater than 1.0
+                probs /= total_prob
+            elif total_prob < 1.0:
+                probs = np.append(probs, 1 - total_prob)
+                indexes += [-1]
             rule_idx = np.random.choice(indexes, p=probs)
             if rule_idx != -1:
-                to_apply = obj_rules[rule_idx]
+                to_apply = all_rules[rule_idx]
                 self.__add_rule_to_apply(membrane, to_apply)
-
-        for rule in mem_rule:
-            prob = np.random.random()
-            if prob < rule[-1].probability:
-                trace = f' + Añadida regla MEMwOB Padre {membrane.id}, ID Hijo: {rule[1]}, Index: {rule[2]}, np.random: {prob}, prob: {rule[-1].probability}'
-                print(trace, file=trace_file)
-                self.__add_rule_to_apply(membrane, rule)
 
         for child in membrane.children:
             self.seq_step(child, trace_file=trace_file)
