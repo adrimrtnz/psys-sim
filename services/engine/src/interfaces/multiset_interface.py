@@ -32,7 +32,7 @@ class MultiSetInterface(ABC):
     def multiset(self, multiset):
         self._multiset = multiset
 
-    def get_all(self):
+    def items(self):
         return self.multiset.items()
 
     @abstractmethod

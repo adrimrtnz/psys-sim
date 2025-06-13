@@ -127,7 +127,7 @@ class Membrane:
 
     def print_structure(self, level=0):
         print(f'{"   " * level}{str(self)}')
-        for key, value in self.objects.get_all():
+        for key, value in self.objects.items():
             print(f'{"   " * level}  BO - (v={key}, mul={value})')
 
         for child in self.children:

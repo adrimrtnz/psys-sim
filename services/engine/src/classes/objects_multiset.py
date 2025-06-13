@@ -24,6 +24,8 @@ class ObjectsMultiset(MultiSetInterface):
         if count < multiplicity:
             return False
         self.multiset[obj] = self.multiset.get(obj, 0) - multiplicity
+        if self.multiset[obj] == 0:
+            del self.multiset[obj]
         return True
 
     def contains(self, _object) -> bool:

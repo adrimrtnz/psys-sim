@@ -1,8 +1,9 @@
 from typing import Dict, Union
 from src.enums.constants import MoveCode
+from src.classes.objects_multiset import ObjectsMultiset
 
 class Rule:
-    def __init__(self, left: Dict, right: Dict, prob = 1, prior = 1, move: str = MoveCode.HERE, destination: Union[str, None] = None, idx: Union[str, None] = None):
+    def __init__(self, left: ObjectsMultiset, right: ObjectsMultiset, prob = 1, prior = 1, move: str = MoveCode.HERE, destination: Union[str, None] = None, idx: Union[str, None] = None):
         self._left = left
         self._right = right
         self._prob = prob
@@ -12,7 +13,7 @@ class Rule:
         self._idx = idx
 
     def __repr__(self):
-        return f'Rule(left={self._left}, right={self._right}, prob={self._prob}, prior={self._prior}, move={self._move}, destination={self._destination}, idx={self._idx})'
+        return f'Rule(left={self._left.multiset}, right={self._right.multiset}, prob={self._prob}, prior={self._prior}, move={self._move}, destination={self._destination}, idx={self._idx})'
 
 
     @property

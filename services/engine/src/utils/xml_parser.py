@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 from xml.dom import minidom
 
 from src.classes.rule import Rule
+from src.classes.objects_multiset import ObjectsMultiset
 from src.classes.membrane import Membrane
 from src.classes.membrane_object import MembraneObject
 from src.classes.p_system import PSystem
@@ -97,14 +98,14 @@ class XMLInputParser:
         if len(nodes) == 0:
             return dict(), None, None
         nodes = nodes[0]
-        out = dict()
+        out = ObjectsMultiset()
         move = nodes.getAttribute('move') if nodes.nodeName == SceneObject.RULE_RH else None
         objects = nodes.getElementsByTagName(SceneObject.OBJECT)
         dest = nodes.getAttribute('destination') if nodes.hasAttribute('destination') else None
         for obj in objects:
             value = obj.getAttribute('v')
             mult = int(obj.getAttribute('m'))
-            out[value] = mult
+            out.add(value, mult)
         return out, move, dest
     
     def __extract_rule_membrane_objects(self, nodes) -> Tuple[Dict, str | None]:
