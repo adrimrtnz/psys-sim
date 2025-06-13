@@ -95,10 +95,10 @@ class XMLInputParser:
         return rule
 
     def __extract_rule_objects(self, nodes) -> Tuple[Dict, str | None]:
-        if len(nodes) == 0:
-            return dict(), None, None
-        nodes = nodes[0]
         out = ObjectsMultiset()
+        if len(nodes) == 0:
+            return out, None, None
+        nodes = nodes[0]
         move = nodes.getAttribute('move') if nodes.nodeName == SceneObject.RULE_RH else None
         objects = nodes.getElementsByTagName(SceneObject.OBJECT)
         dest = nodes.getAttribute('destination') if nodes.hasAttribute('destination') else None
