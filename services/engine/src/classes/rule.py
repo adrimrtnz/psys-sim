@@ -3,7 +3,7 @@ from src.enums.constants import MoveCode
 from src.classes.objects_multiset import ObjectsMultiset
 
 class Rule:
-    def __init__(self, left: ObjectsMultiset, right: ObjectsMultiset, prob = 1, prior = 1, move: str = MoveCode.HERE, destination: Union[str, None] = None, idx: Union[str, None] = None):
+    def __init__(self, left: ObjectsMultiset, right: ObjectsMultiset, prob: float = 1.0, prior: float = 1.0, move: str = MoveCode.HERE, destination: Union[str, None] = None, idx: Union[str, None] = None):
         self._left = left
         self._right = right
         self._prob = prob
