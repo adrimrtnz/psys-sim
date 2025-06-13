@@ -7,7 +7,22 @@ class MultiSetInterface(ABC):
         self._multiset = dict()
 
     def __repr__(self):
-        return str(self._multiset)
+        return f'{self.__class__.__name__}: {str(self._multiset)}'
+    
+    def __and__(self, other: 'MultiSetInterface'):
+        if not isinstance(other, MultiSetInterface):
+            return NotImplemented
+        
+        keys = set(self.multiset.keys()) & set(other.multiset.keys())
+
+        obj = self.__class__()
+        for key in keys:
+            m_self = self.multiset[key]
+            m_other = other.multiset[key]
+            m = min(m_self, m_other)
+            if m > 0:
+                obj.add(key, m)
+        return obj
 
     @property
     def multiset(self):
