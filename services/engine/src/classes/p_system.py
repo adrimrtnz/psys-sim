@@ -7,7 +7,7 @@ from src.classes.membrane import Membrane
 from src.enums.constants import InferenceType, MoveCode, SceneObject
 
 class PSystem:
-    def __init__(self, alpha: Tuple, membranes: Membrane, rules: List[Rule], out: str=None, inference: str='sequential'):
+    def __init__(self, alpha: Tuple, membranes: Membrane, rules: Dict[str, Rule], out: str=None, inference: str='sequential'):
         self._alpha = alpha
         self._membranes = membranes
         self._rules = rules
