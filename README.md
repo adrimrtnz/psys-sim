@@ -30,6 +30,10 @@ This simulator implements P-Systems, a computational model inspired by the struc
 ```bash
 git clone <repository-url>
 cd p-system-simulator
+# Create a virtual environment
+python -m venv .venv
+# Activate the virtual environment
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
