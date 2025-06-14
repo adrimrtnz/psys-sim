@@ -181,14 +181,14 @@ class TestMultisetOperators:
         ms_1 = ObjectsMultiset()
         ms_2 = ObjectsMultiset()
         
-        ms_1.add('a', 0)  # Si el método add maneja multiplicidad 0
+        ms_1.add('a', 0)  # Add maneja multiplicidad 0
         ms_2.add('b', 1)
         
         result_and = ms_1 & ms_2
         result_or = ms_1 | ms_2
         
         assert 'a' not in result_and.multiset
-        assert 'a' not in result_or.multiset  # Asumiendo que add no añade elementos con multiplicidad 0
+        assert 'a' not in result_or.multiset  # Add no debería añadir elementos con multiplicidad 0
     
     def test_commutativity(self):
         """Test para verificar que los operadores son conmutativos"""
