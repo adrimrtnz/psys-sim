@@ -6,8 +6,40 @@ from src.classes.rule import Rule
 from src.classes.membrane import Membrane
 from src.enums.constants import InferenceType, MoveCode, SceneObject
 
+"""
+P-System implementation module for membrane computing.
+
+This module provides the main PSystem class that orchestrates the execution
+of membrane computing systems, including rule application, inference modes,
+and system evolution.
+"""
+
 class PSystem:
+    """P-System implementation for membrane computing simulations.
+    
+    A P-System represents a membrane computing model that consists of membranes
+    containing objects and rules. The system can evolve through the application
+    of rules according to different inference modes.
+    
+    Attributes:
+        alpha (Tuple): Alphabet of objects used in the system.
+        membranes (Membrane): Root membrane containing the membrane structure.
+        rules (Dict[str, Rule]): Dictionary mapping membrane IDs to their rules.
+        out (str): Output membrane identifier (optional).
+        inference (str): Inference mode for rule application.
+        rules_to_apply (List): List of rules pending application.
+    """
+
     def __init__(self, alpha: Tuple, membranes: Membrane, rules: Dict[str, Rule], out: str=None, inference: str=InferenceType.MIN_PARALLEL):
+        """Initialize a P-System.
+        
+        Args:
+            alpha (Tuple): Alphabet of objects that can appear in the system.
+            membranes (Membrane): Root membrane of the system structure.
+            rules (Dict[str, Rule]): Dictionary mapping membrane identifiers to rules.
+            out (str, optional): Identifier of the output membrane. Defaults to None -> out = root membrane.
+            inference (str, optional): Inference mode to use. Defaults to MIN_PARALLEL.
+        """
         self._alpha = alpha
         self._membranes = membranes
         self._rules = rules
@@ -16,14 +48,29 @@ class PSystem:
         self._rules_to_apply = []
 
     def __add_rule_to_apply(self, membrane:Membrane, rule: Rule):
+        """Add a rule to the list of rules to be applied.
+        
+        Args:
+            membrane (Membrane): The membrane where the rule will be applied.
+            rule (Rule): The rule to be applied.
+        """
         self._rules_to_apply.append((membrane, rule))
 
     def print_membranes(self):
+        """Print the membrane structure of the system.
+        
+        Displays the hierarchical structure of membranes in the P-System.
+        """
         # root = next(iter(self._membranes))
         # self._membranes[root].print_structure()
         self._membranes.print_structure()
 
     def print_rules(self):
+        """Print all rules in the system organized by membrane.
+        
+        Displays all rules grouped by their corresponding membranes,
+        showing only membranes that have rules defined.
+        """
         for membrane, rules in self._rules.items():
             if len(rules) != 0:
                 print(membrane)
@@ -31,6 +78,19 @@ class PSystem:
                     print(f' - {rule}')
 
     def applicable_rules(self, membrane: Membrane):
+        """Find all applicable rules for a given membrane.
+        
+        Determines which object and membrane rules can be applied in the current
+        state of the membrane, considering rule priorities and object availability.
+        
+        Args:
+            membrane (Membrane): The membrane to check for applicable rules.
+            
+        Returns:
+            Tuple[List, List]: A tuple containing:
+                - List of applicable object rules
+                - List of applicable membrane rules (in reversed order)
+        """
         membrane_obj_rules = self._rules.get((membrane.id, SceneObject.OBJECT_RULE), [])
         membrane_mem_rules = self._rules.get((membrane.id, SceneObject.MEMBRANE_RULE), [])
         app_obj_rules = []
@@ -56,6 +116,18 @@ class PSystem:
         return app_obj_rules, list(reversed(app_mem_rules))
     
     def apply_rule(self, membrane: Membrane, data):
+        """Apply a specific rule to a membrane.
+        
+        Executes a rule based on its movement code, handling different types
+        of membrane operations such as OUT, HERE, IN, and MEMwOB.
+        
+        Args:
+            membrane (Membrane): The membrane where the rule is applied.
+            data: Tuple containing (mem_id, child_id, child_index, rule).
+            
+        Returns:
+            str: Trace message describing the rule application.
+        """
         mem_id, child_id, child_index, rule = data
         move = rule.move
         match move:
@@ -81,6 +153,18 @@ class PSystem:
         return trace
 
     def apply_rules(self, trace_file = None):
+        """Apply all pending rules in the system.
+        
+        Executes all rules that have been scheduled for application and
+        clears the pending rules list.
+        
+        Args:
+            trace_file (file, optional): File object to write trace information.
+                Defaults to None.
+                
+        Returns:
+            bool: True if at least one rule was applied, False otherwise.
+        """
         n_rules = len(self._rules_to_apply)
         for m, data in self._rules_to_apply:
             trace = self.apply_rule(m, data)
@@ -89,6 +173,16 @@ class PSystem:
         return n_rules > 0
 
     def min_par_step(self, membrane: Membrane, trace_file=None):
+        """Execute one step of minimal parallel inference.
+        
+        Finds applicable rules for a membrane and probabilistically selects
+        one for application. Recursively processes all child membranes.
+        
+        Args:
+            membrane (Membrane): The membrane to process.
+            trace_file (file, optional): File object to write trace information.
+                Defaults to None.
+        """
         obj_rules, mem_rule = self.applicable_rules(membrane)
         all_rules = obj_rules + mem_rule
 
@@ -112,6 +206,18 @@ class PSystem:
             self.min_par_step(child, trace_file=trace_file)
 
     def run(self, max_steps=None):
+        """Run the P-System simulation.
+        
+        Executes the P-System according to the specified inference mode
+        for a maximum number of steps or until no more rules can be applied.
+        
+        Args:
+            max_steps (int, optional): Maximum number of steps to execute.
+                If None, runs until no more rules are applicable.
+                
+        Raises:
+            NotImplementedError: If the specified inference type is not implemented.
+        """
         match self._inference:
             case InferenceType.MIN_PARALLEL:
                 self.__minpar(max_steps=max_steps)
@@ -119,6 +225,15 @@ class PSystem:
                 raise NotImplementedError(f'Inference type "{self._inference}" not Implemented')
 
     def __minpar(self, max_steps=None):
+        """Execute minimal parallel inference mode.
+        
+        Runs the P-System using minimal parallel inference, where in each step
+        at most one rule is applied per membrane, selected probabilistically.
+        
+        Args:
+            max_steps (int, optional): Maximum number of steps to execute.
+                If None, runs until no more rules are applicable.
+        """
         print("Running Min. Parallel")
         try:
             out = open('../../plots/run_trace.txt', 'w+', encoding='utf-8')
