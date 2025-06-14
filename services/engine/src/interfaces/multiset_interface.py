@@ -23,6 +23,21 @@ class MultiSetInterface(ABC):
             if m > 0:
                 obj.add(key, m)
         return obj
+    
+    def __or__(self, other: 'MultiSetInterface'):
+        if not isinstance(other, MultiSetInterface):
+            return NotImplemented
+        
+        keys = set(self.multiset.keys()) | set(other.multiset.keys())
+
+        obj = self.__class__()
+        for key in keys:
+            m_self = self.multiset.get(key, 0)
+            m_other = other.multiset.get(key, 0)
+            m = max(m_self, m_other)
+            if m > 0:
+                obj.add(key, m)
+        return obj
 
     @property
     def multiset(self):
