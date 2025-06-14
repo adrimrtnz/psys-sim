@@ -183,5 +183,5 @@ def example_function(param1: int, param2: str) -> bool:
 
 - Păun, Gheorghe. "Membrane Computing: An Introduction." Springer, 2002.
 - [P-Systems Website](http://ppage.psystems.eu/)
-- [Membrane Computing Research](https://membrane-computing.org/)
+- [P-lingua](http://www.p-lingua.org/wiki/index.php/Main_Page)
 
