@@ -7,7 +7,7 @@ from src.classes.membrane import Membrane
 from src.enums.constants import InferenceType, MoveCode, SceneObject
 
 class PSystem:
-    def __init__(self, alpha: Tuple, membranes: Membrane, rules: Dict[str, Rule], out: str=None, inference: str=InferenceType.SEQUENTIAL):
+    def __init__(self, alpha: Tuple, membranes: Membrane, rules: Dict[str, Rule], out: str=None, inference: str=InferenceType.MIN_PARALLEL):
         self._alpha = alpha
         self._membranes = membranes
         self._rules = rules
@@ -88,7 +88,7 @@ class PSystem:
         self._rules_to_apply.clear()
         return n_rules > 0
 
-    def seq_step(self, membrane: Membrane, trace_file=None):
+    def min_par_step(self, membrane: Membrane, trace_file=None):
         obj_rules, mem_rule = self.applicable_rules(membrane)
         all_rules = obj_rules + mem_rule
 
@@ -109,17 +109,17 @@ class PSystem:
                 self.__add_rule_to_apply(membrane, to_apply)
 
         for child in membrane.children:
-            self.seq_step(child, trace_file=trace_file)
+            self.min_par_step(child, trace_file=trace_file)
 
     def run(self, max_steps=None):
         match self._inference:
-            case InferenceType.SEQUENTIAL:
-                self.__sequential(max_steps=max_steps)
+            case InferenceType.MIN_PARALLEL:
+                self.__minpar(max_steps=max_steps)
             case _:
                 raise NotImplementedError(f'Inference type "{self._inference}" not Implemented')
 
-    def __sequential(self, max_steps=None):
-        print("Running sequential")
+    def __minpar(self, max_steps=None):
+        print("Running Min. Parallel")
         try:
             out = open('../../plots/run_trace.txt', 'w+', encoding='utf-8')
             has_applied = True
@@ -128,7 +128,7 @@ class PSystem:
             while has_applied and (max_steps is None or counter < max_steps):
                 counter += 1
                 print(f'{"="*15} STEP {counter} {"="*15}', file=out)
-                self.seq_step(self._membranes, out)
+                self.min_par_step(self._membranes, out)
                 has_applied = self.apply_rules(out)
                 self._membranes.plot_structure(counter)
         finally:

@@ -42,4 +42,5 @@ class SceneObject():
 
 
 class InferenceType():
+    MIN_PARALLEL = 'minpar'
     SEQUENTIAL = 'sequential'
