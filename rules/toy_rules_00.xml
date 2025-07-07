@@ -14,10 +14,10 @@
     <membrane ID="1">
       <rBO pb="1.0" pr="1.0">
         <lh>
-          <BO v="d" m="1">
+          <BO v="d" m="1"/>
         </lh>
         <rh type="bo" move="OUT">
-          <BO v="d" m="1">
+          <BO v="d" m="1"/>
         </rh>
       </rBO>
     </membrane>
@@ -25,35 +25,35 @@
     <membrane ID="2">
       <rBO pb="1.0" pr="1.5">
         <lh>
-          <BO v="b" m="1">
+          <BO v="b" m="1"/>
         </lh>
         <rh type="bo" move="HERE">
-          <BO v="d" m="1">
+          <BO v="d" m="1"/>
         </rh>
       </rBO>
 
       <rBO pb="1.0" pr="1.5">
         <lh>
-          <BO v="d" m="1">
+          <BO v="d" m="1"/>
         </lh>
         <rh type="bo" move="HERE">
-          <BO v="d" m="1">
-          <BO v="e" m="1">
+          <BO v="d" m="1"/>
+          <BO v="e" m="1"/>
         </rh>
       </rBO>
 
       <rBO pb="1.0" pr="1.5">
         <lh>
-          <BO v="f" m="2">
+          <BO v="f" m="2"/>
         </lh>
         <rh type="bo" move="HERE">
-          <BO v="f" m="1">
+          <BO v="f" m="1"/>
         </rh>
       </rBO>
 
       <rBO pb="1.0" pr="1.0">
         <lh>
-          <BO v="f" m="1">
+          <BO v="f" m="1"/>
         </lh>
         <rh type="bo" move="DISS2">
         </rh>
@@ -63,29 +63,29 @@
     <membrane ID="3">
       <rBO pb="1.0" pr="1.0">
         <lh>
-          <BO v="a" m="1">
+          <BO v="a" m="1"/>
         </lh>
         <rh type="bo" move="HERE">
-          <BO v="a" m="1">
-          <BO v="b" m="1">
+          <BO v="a" m="1"/>
+          <BO v="b" m="1"/>
         </rh>
       </rBO>
 
       <rBO pb="1.0" pr="1.0">
         <lh>
-          <BO v="a" m="1">
+          <BO v="a" m="1"/>
         </lh>
         <rh type="bo" move="DISS2">
-          <BO v="b" m="1">
+          <BO v="b" m="1"/>
         </rh>
       </rBO>
 
       <rBO pb="1.0" pr="1.0">
         <lh>
-          <BO v="f" m="1">
+          <BO v="f" m="1"/>
         </lh>
         <rh type="bo" move="HERE">
-          <BO v="f" m="2">
+          <BO v="f" m="2"/>
         </rh>
       </rBO>
     </membrane>

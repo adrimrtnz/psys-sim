@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <model>
-    <config>
-        <membrane id="1", m="1", capacity="100">
-            <membrane id="2" m="1" capacity="100">
-                <membrane id="3" m="1" capacity="100">
-                    <BO v="a" m="1"/>
-                    <BO v="f" m="1"/>
-                </membrane>
-            </membrane>
-        </membrane>
-    </config>
+  <config>
+      <membrane id="1" m="1" capacity="100">
+          <membrane id="2" m="1" capacity="100">
+              <membrane id="3" m="1" capacity="100">
+                  <BO v="a" m="1"/>
+                  <BO v="f" m="1"/>
+              </membrane>
+          </membrane>
+      </membrane>
+  </config>
 </model>
