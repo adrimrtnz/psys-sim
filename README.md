@@ -99,7 +99,7 @@ Scene=scene_00
 Rules=rules_00
 
 [Runtime]
-# Inference mode: minpar | sequential (default: minpar)
+# Inference mode: minpar | maxpar (default: minpar)
 Inference=minpar
 # Maximum simulation steps (default: unlimited)
 MaxSteps=4
@@ -143,11 +143,15 @@ rule = Rule(
 
 ## 🧪 Inference Modes
 
-### Minimal Parallel (`minpar`)
+### Minimally Parallel (`minpar`)
 - At most one rule per membrane per step
 - Probabilistic rule selection
 - Handles rule conflicts through priorities
 - Default execution mode
+
+
+### Maximally Parallel (`maxpar`)
+- Apply, at each step, a non-extendable number of rules.
 
 
 ## 🤝 Contributing
