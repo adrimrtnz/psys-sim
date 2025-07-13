@@ -148,6 +148,9 @@ class PSystem:
                 dest = next((child for child in self._membranes.children if child.id == dest_idx))
                 trace = f' - Applicando MEMwOB {membrane.id:>5} -> {rule}, Child Nº {child_index} from {mem_id} to {dest.id}'
                 membrane.apply_move_mem_rule(rule=rule, destination=dest, child_idx=child_index)
+            case MoveCode.DISS2.name:
+                trace = f' - Aplicando DISS2 {membrane.id:>5} -> {rule}'
+                membrane.apply_dissolve_to_parent_rule(rule=rule)
             case _:
                 trace = f' - NO Applicada {membrane.id:>5} -> {rule}'
         return trace
