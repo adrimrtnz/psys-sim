@@ -2,6 +2,11 @@ from src.interfaces.multiset_interface import MultiSetInterface
 
 class ObjectsMultiset(MultiSetInterface):
 
+    def copy(self):
+        new_obj = ObjectsMultiset()
+        new_obj.multiset = self.multiset.copy()
+        return new_obj
+
     def add(self, obj: str, multiplicity: int = 1) -> bool:
         if obj is None:
             raise ValueError("ObjectsMultiset.add -> object cannot be null")
@@ -33,7 +38,8 @@ class ObjectsMultiset(MultiSetInterface):
         return value > 0
 
     def count(self, _object):
-        return self._multiset.get(_object, 0)
+        print(f'   - Comprobando "{_object}" en {self._multiset} -> {self.multiset.get(_object, 0)}')
+        return self.multiset.get(_object, 0)
 
     def count_subsets(self, other):
         """

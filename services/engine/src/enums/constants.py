@@ -80,4 +80,4 @@ class InferenceType():
         SEQUENTIAL (str): Sequential inference mode.
     """
     MIN_PARALLEL = 'minpar'
-    SEQUENTIAL = 'sequential'
+    MAX_PARALLEL = 'maxpar'

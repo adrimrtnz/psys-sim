@@ -45,7 +45,29 @@ class Membrane:
     
     @property
     def objects(self):
+        """Get the objects multiset of the membrane.
+    
+        Returns:
+            ObjectsMultiset: The multiset containing membrane objects.
+        """
         return self._objects
+    
+    @objects.setter
+    def objects(self, new_value):
+        """Set the objects multiset of the membrane.
+    
+        Args:
+            new_value (ObjectsMultiset): The new objects multiset.
+            
+        Raises:
+            TypeError: If new_value is not an ObjectsMultiset instance.
+            ValueError: If new_value is None.
+        """
+        if new_value is None:
+            raise ValueError('The membrane objects attribute cannot be None')
+        if not isinstance(new_value, ObjectsMultiset):
+            raise TypeError(f'Expected ObjectsMultiset, got {type(new_value).__name__}')
+        self._objects = new_value
     
     @property
     def rules(self):
@@ -78,26 +100,24 @@ class Membrane:
         child = self._children.pop(child_idx)
         return child
     
-    def apply_here_rule(self, rule: Rule):
-        # TODO: Apply probability
+    def apply_here_rule(self, rule: Rule, multiplicity : int):
         for obj, m in rule.left.items():
-            self.objects.sub(obj=obj, multiplicity=m)
+            self.objects.sub(obj=obj, multiplicity=m * multiplicity)
         for obj, m in rule.right.items():
-            self.objects.add(obj=obj, multiplicity=m)
+            self.objects.add(obj=obj, multiplicity=m * multiplicity)
 
-    def apply_out_rule(self, rule: Rule):
-        # TODO: Apply probability
+    def apply_out_rule(self, rule: Rule, multiplicity : int):
         for obj, m in rule.left.items():
-            self.objects.sub(obj=obj, multiplicity=m)
-        for obj, m in rule.right.items():
-            self.parent.objects.add(obj=obj, multiplicity=m)
+            self.objects.sub(obj=obj, multiplicity=m * multiplicity)
+        if self.parent is not None:
+            for obj, m in rule.right.items():
+                self.parent.objects.add(obj=obj, multiplicity=m * multiplicity)
 
-    def apply_in_rule(self, rule: Rule, destination: 'Membrane'):
-        # TODO: Apply probability
+    def apply_in_rule(self, rule: Rule, destination: 'Membrane', multiplicity : int):
         for obj, m in rule.left.items():
-            self.objects.sub(obj=obj, multiplicity=m)
+            self.objects.sub(obj=obj, multiplicity=m * multiplicity)
         for obj, m in rule.right.items():
-            destination.objects.add(obj=obj, multiplicity=m)
+            destination.objects.add(obj=obj, multiplicity=m * multiplicity)
 
     def apply_move_mem_rule(self, rule: Rule, destination: 'Membrane', child_idx: int):
         child = self.remove_child(child_idx)
@@ -106,8 +126,10 @@ class Membrane:
         child.parent = destination
 
     def apply_dissolve_to_parent_rule(self, rule: Rule):
-        self.apply_here_rule(rule=rule)
-        self.parent.objects.add(self.objects)
+        self.apply_here_rule(rule=rule, multiplicity=1)
+        print(f'        - Objetos del padre antes {self.parent.objects}')
+        self.parent.objects = self.parent.objects + self.objects
+        print(f'        - Objetos del padre después {self.parent.objects}')
         self.parent.children.remove(self)
         del self
 

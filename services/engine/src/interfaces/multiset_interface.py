@@ -91,6 +91,25 @@ class MultiSetInterface(ABC):
             if m > 0:
                 obj.add(key, m)
         return obj
+    
+    def __add__(self, other: 'MultiSetInterface'):
+        """Compute the sum of two multisets.
+        
+        Args:
+            other (MultiSetInterface): Another multiset to sum with.
+            
+        Returns:
+            MultiSetInterface: New multiset containing the union.
+            NotImplemented: If other is not a MultiSetInterface instance.
+        """
+        keys = set(self.multiset.keys()) | set(other.multiset.keys())
+
+        obj = self.__class__()
+        for key in keys:
+            m_self = self.multiset.get(key, 0)
+            m_other = other.multiset.get(key, 0)
+            obj.add(key, m_self + m_other)
+        return obj
 
     @property
     def multiset(self):
