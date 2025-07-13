@@ -5,7 +5,6 @@ from xml.dom import minidom
 from src.classes.rule import Rule
 from src.classes.objects_multiset import ObjectsMultiset
 from src.classes.membrane import Membrane
-from src.classes.membrane_object import MembraneObject
 from src.classes.p_system import PSystem
 from src.enums.constants import SceneObject
 
@@ -33,8 +32,7 @@ class XMLInputParser:
                     self.iterate_scene_node(child, membrane)
                 elif child.nodeName == SceneObject.OBJECT:
                     bo_v, bo_mul = attr
-                    m_object = MembraneObject(v=bo_v, m=bo_mul)
-                    parent.add_objects(m_object)
+                    parent.objects.add(bo_v, bo_mul)
         return parent
     
     def iterate_rules_node(self, node: minidom.Document) -> Tuple[List[str], Dict]:

@@ -1,6 +1,5 @@
 from typing import List
 from src.classes.rule import Rule
-from src.classes.membrane_object import MembraneObject
 from src.classes.objects_multiset import ObjectsMultiset
 
 
@@ -70,24 +69,14 @@ class Membrane:
                 raise ValueError('All the children to add should be an instance of Membrane')
         elif isinstance(value, Membrane):
             self._children.append(value)
-
-
-    def add_objects(self, objects: List[MembraneObject] | MembraneObject) -> bool:
-        """
-        Function to add objects to the Membrane
-
-        Args:
-            objects: MembraneObject or list of MembraneObject
-        """
-        if type(objects) is list:
-            for _object in objects:
-                if isinstance(_object, MembraneObject):
-                    self._objects.add(_object.value, int(_object.multiplicity))
-                else:
-                    raise ValueError('All the objects to add should be an instance of MembraneObject')
-        elif isinstance(objects, MembraneObject):
-            self._objects.add(objects.value, int(objects.multiplicity))
+    
+    def add_child(self, child: 'Membrane'):
+        self._children.append(child)
         return True
+
+    def remove_child(self, child_idx):
+        child = self._children.pop(child_idx)
+        return child
     
     def apply_here_rule(self, rule: Rule):
         # TODO: Apply probability
@@ -110,20 +99,17 @@ class Membrane:
         for obj, m in rule.right.items():
             destination.objects.add(obj=obj, multiplicity=m)
 
-    def add_child(self, child: 'Membrane'):
-        self._children.append(child)
-        return True
-
-    def remove_child(self, child_idx):
-        child = self._children.pop(child_idx)
-        return child
-
     def apply_move_mem_rule(self, rule: Rule, destination: 'Membrane', child_idx: int):
         child = self.remove_child(child_idx)
         child.apply_here_rule(rule)
         destination.add_child(child)
         child.parent = destination
 
+    def apply_dissolve_to_parent_rule(self, rule: Rule):
+        self.apply_here_rule(rule=rule)
+        self.parent.objects.add(self.objects)
+        self.parent.children.remove(self)
+        del self
 
     def print_structure(self, level=0):
         print(f'{"   " * level}{str(self)}')
