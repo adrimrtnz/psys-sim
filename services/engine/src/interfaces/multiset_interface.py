@@ -99,7 +99,7 @@ class MultiSetInterface(ABC):
             other (MultiSetInterface): Another multiset to sum with.
             
         Returns:
-            MultiSetInterface: New multiset containing the union.
+            MultiSetInterface: New multiset containing the sum.
             NotImplemented: If other is not a MultiSetInterface instance.
         """
         keys = set(self.multiset.keys()) | set(other.multiset.keys())
@@ -109,6 +109,29 @@ class MultiSetInterface(ABC):
             m_self = self.multiset.get(key, 0)
             m_other = other.multiset.get(key, 0)
             obj.add(key, m_self + m_other)
+        return obj
+    
+    def __sub__(self, other: 'MultiSetInterface'):
+        """Compute the substraction of two multisets.
+        
+        Args:
+            other (MultiSetInterface): Another multiset to substract with.
+            
+        Returns:
+            MultiSetInterface: New multiset containing the substraction.
+            NotImplemented: If other is not a MultiSetInterface instance.
+        """
+        keys = set(self.multiset.keys()) | set(other.multiset.keys())
+
+        obj = self.__class__()
+        for key in keys:
+            m_self = self.multiset.get(key, 0)
+            m_other = other.multiset.get(key, 0)
+            if m_self - m_other < 0:
+                raise ValueError(f'{self.__class__.__name__} can not have negative values')
+            if m_self - m_other == 0:
+                continue
+            obj.add(key, m_self - m_other)
         return obj
 
     @property
