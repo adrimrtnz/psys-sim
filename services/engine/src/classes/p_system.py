@@ -1,3 +1,4 @@
+import random
 import numpy as np
 
 from typing import Dict, List, Tuple
@@ -57,6 +58,26 @@ class PSystem:
         """
         self._rules_to_apply.append((membrane, rule_data, multiplicity))
 
+    def __generate_groups(self, membrane: Membrane, rules: List[Rule]):
+        groups = list()
+        if len(rules) > 0:
+            group_rules = list()
+            original_objects = membrane.objects.copy()
+            for rule_data in rules:
+                rule = rule_data[-1]
+                prob = rule.probability
+                probs = np.array([prob, 1-prob])
+                indexes = [1, -1]
+                rule_idx = np.random.choice(indexes, p=probs)
+                if rule_idx != -1:
+                    rule_left = rule.left
+                    count = original_objects.count_subsets(rule_left)
+                    if count > 0:
+                        original_objects = original_objects - rule_left
+                        group_rules.append((rule_data, count))
+            groups.append(group_rules)
+        return groups
+
     def print_membranes(self):
         """Print the membrane structure of the system.
         
@@ -107,7 +128,6 @@ class PSystem:
                 if rule.priority is not None:
                     if rule.priority > max_priority:
                         max_priority = rule.priority
-                        print(f'Max priority: {max_priority} en membrana {membrane.id}')
                         # If we find a more dominant rule over the already seen ones, clear the list
                         app_obj_priority_rules.clear()
                     if rule.priority < max_priority:
@@ -237,20 +257,13 @@ class PSystem:
         """
         obj_rules_data, mem_rule_data = self.applicable_rules(membrane)
         all_rules_data = obj_rules_data + mem_rule_data
-        groups_of_rules = list()
+        groups_of_rules = self.__generate_groups(membrane=membrane, rules=all_rules_data)
+        print(f'Len grupos {len(groups_of_rules)}')
 
-        if len(all_rules_data) > 0:
-            original_objects = membrane.objects.copy()
-            for rule_data in all_rules_data:
-                rule = rule_data[-1]
-                prob = rule.probability
-                probs = np.array([prob, 1-prob])
-                indexes = [1, -1]
-                rule_idx = np.random.choice(indexes, p=probs)
-                if rule_idx != -1:
-                    rule_left = rule.left
-                    count = original_objects.count_subsets(rule_left)
-                    original_objects.sub(rule_left)
+        if groups_of_rules:
+            rules = random.choice(groups_of_rules)
+            if len(rules) > 0:
+                for (rule_data, count) in rules:
                     self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
 
         for child in membrane.children:
