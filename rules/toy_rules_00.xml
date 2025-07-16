@@ -23,7 +23,7 @@
     </membrane>
 
     <membrane ID="2">
-      <rBO pb="1.0" pr="1.0">
+      <rBO pb="1.0">
         <lh>
           <BO v="b" m="1"/>
         </lh>
@@ -32,7 +32,7 @@
         </rh>
       </rBO>
 
-      <rBO pb="1.0" pr="1.0">
+      <rBO pb="1.0">
         <lh>
           <BO v="d" m="1"/>
         </lh>
@@ -55,7 +55,7 @@
         <lh>
           <BO v="f" m="1"/>
         </lh>
-        <rh type="bo" move="DISS2">
+        <rh type="bo" move="DISS_KEEP">
         </rh>
       </rBO>
     </membrane>
@@ -75,7 +75,7 @@
         <lh>
           <BO v="a" m="1"/>
         </lh>
-        <rh type="bo" move="DISS2">
+        <rh type="bo" move="DISS_KEEP">
           <BO v="b" m="1"/>
         </rh>
       </rBO>
