@@ -24,7 +24,6 @@ class ObjectsMultiset(MultiSetInterface):
             raise ValueError("ObjectsMultiset.sub -> object multiplicity cannot be negative")
         if multiplicity == 0:
             return False
-
         count = self.multiset.get(obj, 0)
         if count < multiplicity:
             return False
@@ -38,7 +37,6 @@ class ObjectsMultiset(MultiSetInterface):
         return value > 0
 
     def count(self, _object):
-        print(f'   - Comprobando "{_object}" en {self._multiset} -> {self.multiset.get(_object, 0)}')
         return self.multiset.get(_object, 0)
 
     def count_subsets(self, other):
