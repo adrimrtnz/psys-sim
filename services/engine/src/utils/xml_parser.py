@@ -67,7 +67,7 @@ class XMLInputParser:
 
     def __build_obj_rule(self, rule_node) -> Rule:
         probability = float(rule_node.getAttribute('pb'))
-        priority = float(rule_node.getAttribute('pr'))
+        priority = float(rule_node.getAttribute('pr')) if rule_node.getAttribute('pr') else None
         left_objects, _, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_LH))
         right_objects, move, dest = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_RH))
         rule = Rule(left=left_objects,

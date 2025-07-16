@@ -95,26 +95,38 @@ class PSystem:
         membrane_obj_rules = self._rules.get((membrane.id, SceneObject.OBJECT_RULE), [])
         membrane_mem_rules = self._rules.get((membrane.id, SceneObject.MEMBRANE_RULE), [])
         app_obj_rules = []
+        app_obj_priority_rules = []
+        app_diss_rules = []
         app_mem_rules = []
         max_priority = -1
 
         for rule in membrane_obj_rules:
             left = rule.left
             if all(membrane.objects.count(obj) >= m for obj, m in left.items()):
-                if rule.priority > max_priority:
-                    max_priority = rule.priority
-                    print(f'Max priority: {max_priority} en membrana {membrane.id}')
-                    # If we find a more dominant rule over the already seen ones, clear the list
-                    app_obj_rules.clear()
-                if rule.priority < max_priority:
-                    continue
-                app_obj_rules.append((membrane.id, 0, 0, rule))
+                if rule.priority is not None:
+                    if rule.priority > max_priority:
+                        max_priority = rule.priority
+                        print(f'Max priority: {max_priority} en membrana {membrane.id}')
+                        # If we find a more dominant rule over the already seen ones, clear the list
+                        app_obj_priority_rules.clear()
+                    if rule.priority < max_priority:
+                        continue
+                    if rule.move in [MoveCode.DISS_KEEP.name]:
+                        app_diss_rules.append((membrane.id, 0, 0, rule))
+                    else:
+                        app_obj_priority_rules.append((membrane.id, 0, 0, rule))
+                else:
+                    if rule.move in [MoveCode.DISS_KEEP.name]:
+                        app_diss_rules.append((membrane.id, 0, 0, rule))
+                    else:
+                        app_obj_rules.append((membrane.id, 0, 0, rule))
 
         for i, child in enumerate(membrane.children):
             for rule in membrane_mem_rules:
                 idx = rule.idx
                 if child.id == idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
+        app_obj_rules = app_obj_rules + app_obj_priority_rules + app_diss_rules
         return app_obj_rules, list(reversed(app_mem_rules))
     
     def apply_rule(self, membrane: Membrane, data, multiplicity: int = 1):
@@ -150,8 +162,8 @@ class PSystem:
                 dest = next((child for child in self._membranes.children if child.id == dest_idx))
                 trace = f' - Applying MEMwOB {membrane.id:>5} -> {rule}, Child Nº {child_index} from {mem_id} to {dest.id}'
                 membrane.apply_move_mem_rule(rule=rule, destination=dest, child_idx=child_index)
-            case MoveCode.DISS2.name:
-                trace = f' - Applying DISS2 {membrane.id:>6} -> {rule}'
+            case MoveCode.DISS_KEEP.name:
+                trace = f' - Applying DISS_KEEP {membrane.id:>2} -> {rule}'
                 membrane.apply_dissolve_to_parent_rule(rule=rule)
             case _:
                 trace = f' - NOT Applied {membrane.id:>5} -> {rule}'
@@ -310,6 +322,6 @@ class PSystem:
                 print(f'{"="*15} STEP {counter} {"="*15}', file=out)
                 self.max_par_step(self._membranes, out)
                 has_applied = self.apply_rules(out)
-                self._membranes.plot_structure(counter)
+                # self._membranes.plot_structure(counter)
         finally:
             out.close()
