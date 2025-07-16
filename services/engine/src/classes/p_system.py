@@ -94,10 +94,11 @@ class PSystem:
         """
         membrane_obj_rules = self._rules.get((membrane.id, SceneObject.OBJECT_RULE), [])
         membrane_mem_rules = self._rules.get((membrane.id, SceneObject.MEMBRANE_RULE), [])
-        app_obj_rules = []
-        app_obj_priority_rules = []
-        app_diss_rules = []
-        app_mem_rules = []
+
+        app_obj_rules = []              # Rules with defined priorities
+        app_obj_priority_rules = []     # Rules without a priority value
+        app_diss_rules = []             # Rules that dissolve the membrane, applied at the end
+        app_mem_rules = []              # Rules that move an entire membrane
         max_priority = -1
 
         for rule in membrane_obj_rules:
@@ -111,15 +112,15 @@ class PSystem:
                         app_obj_priority_rules.clear()
                     if rule.priority < max_priority:
                         continue
-                    if rule.move in [MoveCode.DISS_KEEP.name]:
-                        app_diss_rules.append((membrane.id, 0, 0, rule))
-                    else:
-                        app_obj_priority_rules.append((membrane.id, 0, 0, rule))
-                else:
-                    if rule.move in [MoveCode.DISS_KEEP.name]:
-                        app_diss_rules.append((membrane.id, 0, 0, rule))
-                    else:
+                    if rule.move not in (MoveCode.DISS.name, MoveCode.DISS_KEEP.name):
                         app_obj_rules.append((membrane.id, 0, 0, rule))
+                    else:
+                        app_diss_rules.append((membrane.id, 0, 0, rule))
+                else:
+                    if rule.move not in (MoveCode.DISS.name, MoveCode.DISS_KEEP.name):
+                        app_obj_rules.append((membrane.id, 0, 0, rule))
+                    else:
+                        app_diss_rules.append((membrane.id, 0, 0, rule))
 
         for i, child in enumerate(membrane.children):
             for rule in membrane_mem_rules:
