@@ -114,7 +114,7 @@ The system supports various movement operations:
 - **IN**: Objects move to child membrane
 - **MEM**: Objects move to sibling membrane
 - **DISS**: Dissolve membrane and remove objects
-- **DISS2**: Dissolve membrane, objects go to parent
+- **DISS_KEEP**: Dissolve membrane, objects go to parent
 - **MEMWC**: Copy membrane during movement
 - **MEMTRANS**: Membrane movement for plasmid transmission
 - **GROUP_TRANS**: Percentage-based membrane group transfer

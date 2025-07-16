@@ -21,7 +21,7 @@ class MoveCode(Enum):
         IN (int): Destination is a region within the current one.
         MEM (int): Destination of elements is other region at same level.
         DISS (int): Dissolve region and remove its elements.
-        DISS2 (int): Dissolve region and its elements go to the parent.
+        DISS_KEEP (int): Dissolve region and its elements go to the parent.
         MEMWC (int): Marks a movement of one membrane between regions but in
             the transmitting region take a copy of the membrane.
         MEMTRANS (int): MEM operation for plasmid transmission.
@@ -38,7 +38,7 @@ class MoveCode(Enum):
     IN = 3
     MEM = 4
     DISS = 5
-    DISS2 = 6   # DISS_KEEP
+    DISS_KEEP = 6
     MEMWC = 7   
     MEMTRANS = 8
     GROUP_TRANS = 9
