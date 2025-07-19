@@ -28,11 +28,12 @@ if __name__ == '__main__':
     parser = SceneParserFactory(config)
     system = parser.parse()
     
-    print('================ STARTING MEMBRANE STRUCTURE ================')
-    system.print_membranes()
-
     print('\n========================== RULES ===========================')
     system.print_rules()
+
+    print('\n================ STARTING MEMBRANE STRUCTURE ================')
+    system.print_membranes()
+
     system.run(config.max_steps)
 
     print('\n================== FINAL MEMBRANE STRUCTURE ==================')
