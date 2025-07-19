@@ -35,5 +35,5 @@ if __name__ == '__main__':
     system.print_rules()
     system.run(config.max_steps)
 
-    print('\n================== FINAL MEMBRANE STRUCTURE ==================\n')
+    print('\n================== FINAL MEMBRANE STRUCTURE ==================')
     system.print_membranes()
