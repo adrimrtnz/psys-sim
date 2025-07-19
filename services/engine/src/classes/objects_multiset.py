@@ -7,21 +7,21 @@ class ObjectsMultiset(MultiSetInterface):
         new_obj.multiset = self.multiset.copy()
         return new_obj
 
-    def add(self, obj: str, multiplicity: int = 1) -> bool:
+    def add_object(self, obj: str, multiplicity: int = 1) -> bool:
         if obj is None:
-            raise ValueError("ObjectsMultiset.add -> object cannot be null")
+            raise ValueError("ObjectsMultiset.add_object -> object cannot be null")
         if multiplicity < 0:
-            raise ValueError("ObjectsMultiset.add -> object multiplicity cannot be negative")
+            raise ValueError("ObjectsMultiset.add_object -> object multiplicity cannot be negative")
         if multiplicity == 0:
             return False
         self.multiset[obj] = self.multiset.get(obj, 0) + multiplicity
         return True
 
-    def sub(self, obj: str, multiplicity: int = 1) -> bool:
+    def sub_object(self, obj: str, multiplicity: int = 1) -> bool:
         if obj is None:
-            raise ValueError("ObjectsMultiset.sub -> object cannot be null")
+            raise ValueError("ObjectsMultiset.sub_object -> object cannot be null")
         if multiplicity < 0:
-            raise ValueError("ObjectsMultiset.sub -> object multiplicity cannot be negative")
+            raise ValueError("ObjectsMultiset.sub_object -> object multiplicity cannot be negative")
         if multiplicity == 0:
             return False
         count = self.multiset.get(obj, 0)

@@ -62,7 +62,7 @@ class MultiSetInterface(ABC):
             m_other = other.multiset[key]
             m = min(m_self, m_other)
             if m > 0:
-                obj.add(key, m)
+                obj.add_object(key, m)
         return obj
     
     def __or__(self, other: 'MultiSetInterface'):
@@ -89,7 +89,7 @@ class MultiSetInterface(ABC):
             m_other = other.multiset.get(key, 0)
             m = max(m_self, m_other)
             if m > 0:
-                obj.add(key, m)
+                obj.add_object(key, m)
         return obj
     
     def __add__(self, other: 'MultiSetInterface'):
@@ -108,7 +108,7 @@ class MultiSetInterface(ABC):
         for key in keys:
             m_self = self.multiset.get(key, 0)
             m_other = other.multiset.get(key, 0)
-            obj.add(key, m_self + m_other)
+            obj.add_object(key, m_self + m_other)
         return obj
     
     def __sub__(self, other: 'MultiSetInterface'):
@@ -131,7 +131,7 @@ class MultiSetInterface(ABC):
                 raise ValueError(f'{self.__class__.__name__} can not have negative values')
             if m_self - m_other == 0:
                 continue
-            obj.add(key, m_self - m_other)
+            obj.add_object(key, m_self - m_other)
         return obj
 
     @property
@@ -173,7 +173,7 @@ class MultiSetInterface(ABC):
         pass
 
     @abstractmethod
-    def add(self, obj: Any, multiplicity: int) -> bool:
+    def add_object(self, obj: Any, multiplicity: int) -> bool:
         """Add objects to the multiset.
         
         Args:
@@ -186,7 +186,7 @@ class MultiSetInterface(ABC):
         pass
 
     @abstractmethod
-    def sub(self, obj: Any, multiplicity: int) -> bool:
+    def sub_object(self, obj: Any, multiplicity: int) -> bool:
         """Subtract objects from the multiset.
         
         Args:

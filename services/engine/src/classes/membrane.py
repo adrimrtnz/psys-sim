@@ -102,22 +102,22 @@ class Membrane:
     
     def apply_here_rule(self, rule: Rule, multiplicity : int):
         for obj, m in rule.left.items():
-            self.objects.sub(obj=obj, multiplicity=m * multiplicity)
+            self.objects.sub_object(obj=obj, multiplicity=m * multiplicity)
         for obj, m in rule.right.items():
-            self.objects.add(obj=obj, multiplicity=m * multiplicity)
+            self.objects.add_object(obj=obj, multiplicity=m * multiplicity)
 
     def apply_out_rule(self, rule: Rule, multiplicity : int):
         for obj, m in rule.left.items():
-            self.objects.sub(obj=obj, multiplicity=m * multiplicity)
+            self.objects.sub_object(obj=obj, multiplicity=m * multiplicity)
         if self.parent is not None:
             for obj, m in rule.right.items():
-                self.parent.objects.add(obj=obj, multiplicity=m * multiplicity)
+                self.parent.objects.add_object(obj=obj, multiplicity=m * multiplicity)
 
     def apply_in_rule(self, rule: Rule, destination: 'Membrane', multiplicity : int):
         for obj, m in rule.left.items():
-            self.objects.sub(obj=obj, multiplicity=m * multiplicity)
+            self.objects.sub_object(obj=obj, multiplicity=m * multiplicity)
         for obj, m in rule.right.items():
-            destination.objects.add(obj=obj, multiplicity=m * multiplicity)
+            destination.objects.add_object(obj=obj, multiplicity=m * multiplicity)
 
     def apply_move_mem_rule(self, rule: Rule, destination: 'Membrane', child_idx: int):
         child = self.remove_child(child_idx)

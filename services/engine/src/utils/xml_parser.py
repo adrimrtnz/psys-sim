@@ -32,7 +32,7 @@ class XMLInputParser:
                     self.iterate_scene_node(child, membrane)
                 elif child.nodeName == SceneObject.OBJECT:
                     bo_v, bo_mul = attr
-                    parent.objects.add(bo_v, bo_mul)
+                    parent.objects.add_object(bo_v, bo_mul)
         return parent
     
     def iterate_rules_node(self, node: minidom.Document) -> Tuple[List[str], Dict]:
@@ -107,7 +107,7 @@ class XMLInputParser:
         for obj in objects:
             value = obj.getAttribute('v')
             mult = int(obj.getAttribute('m'))
-            out.add(value, mult)
+            out.add_object(value, mult)
         return out, move, dest
     
     def __extract_rule_membrane_objects(self, nodes) -> Tuple[Dict, str | None]:

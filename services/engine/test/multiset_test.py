@@ -15,8 +15,8 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():
-            ms_1.add(o, m)
-            ms_2.add(o, m)
+            ms_1.add_object(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 & ms_2
         assert ms_3.multiset == self.obj_a
@@ -27,10 +27,10 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():  # {'a': 2, 'b': 2}
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
             
         for o, m in self.obj_b.items():  # {'a': 1, 'b': 1}
-            ms_2.add(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 & ms_2
         assert ms_3.multiset == self.obj_b  # Debería ser el mínimo
@@ -41,10 +41,10 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():  # {'a': 2, 'b': 2}
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
             
         for o, m in self.obj_c.items():  # {'c': 3, 'd': 1}
-            ms_2.add(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 & ms_2
         assert ms_3.multiset == {}  # Sin elementos comunes
@@ -55,10 +55,10 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():  # {'a': 2, 'b': 2}
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
             
         for o, m in self.obj_mixed.items():  # {'a': 3, 'b': 1, 'c': 2}
-            ms_2.add(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 & ms_2
         expected = {'a': 2, 'b': 1}  # min(2,3)=2 para 'a', min(2,1)=1 para 'b'
@@ -70,7 +70,7 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
         
         ms_3 = ms_1 & ms_2
         assert ms_3.multiset == {}
@@ -92,8 +92,8 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():
-            ms_1.add(o, m)
-            ms_2.add(o, m)
+            ms_1.add_object(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 | ms_2
         assert ms_3.multiset == self.obj_a
@@ -104,10 +104,10 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():  # {'a': 2, 'b': 2}
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
             
         for o, m in self.obj_b.items():  # {'a': 1, 'b': 1}
-            ms_2.add(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 | ms_2
         assert ms_3.multiset == self.obj_a  # Debería ser el máximo
@@ -118,10 +118,10 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():  # {'a': 2, 'b': 2}
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
             
         for o, m in self.obj_c.items():  # {'c': 3, 'd': 1}
-            ms_2.add(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 | ms_2
         expected = {'a': 2, 'b': 2, 'c': 3, 'd': 1}
@@ -133,10 +133,10 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():  # {'a': 2, 'b': 2}
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
             
         for o, m in self.obj_mixed.items():  # {'a': 3, 'b': 1, 'c': 2}
-            ms_2.add(o, m)
+            ms_2.add_object(o, m)
         
         ms_3 = ms_1 | ms_2
         expected = {'a': 3, 'b': 2, 'c': 2}  # max(2,3)=3 para 'a', max(2,1)=2 para 'b', 'c' solo en ms_2
@@ -148,7 +148,7 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
         
         ms_3 = ms_1 | ms_2
         assert ms_3.multiset == self.obj_a
@@ -181,8 +181,8 @@ class TestMultisetOperators:
         ms_1 = ObjectsMultiset()
         ms_2 = ObjectsMultiset()
         
-        ms_1.add('a', 0)  # Add maneja multiplicidad 0
-        ms_2.add('b', 1)
+        ms_1.add_object('a', 0)  # Add maneja multiplicidad 0
+        ms_2.add_object('b', 1)
         
         result_and = ms_1 & ms_2
         result_or = ms_1 | ms_2
@@ -196,9 +196,9 @@ class TestMultisetOperators:
         ms_2 = ObjectsMultiset()
         
         for o, m in self.obj_a.items():
-            ms_1.add(o, m)
+            ms_1.add_object(o, m)
         for o, m in self.obj_mixed.items():
-            ms_2.add(o, m)
+            ms_2.add_object(o, m)
         
         # AND es conmutativo
         result_and_1 = ms_1 & ms_2
