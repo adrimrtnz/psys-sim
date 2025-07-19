@@ -217,7 +217,7 @@ class PSystem:
                 idx = rule.idx
                 if child.id == idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
-        return app_obj_rules, list(reversed(app_mem_rules))
+        return app_obj_rules + list(reversed(app_mem_rules))
     
     def apply_rule(self, membrane: Membrane, data, multiplicity: int = 1):
         """Apply a specific rule to a membrane.
@@ -290,13 +290,12 @@ class PSystem:
             trace_file (file, optional): File object to write trace information.
                 Defaults to None.
         """
-        obj_rules_data, mem_rule_data = self.applicable_rules(membrane)
-        all_rules_data = obj_rules_data + mem_rule_data
+        rules = self.applicable_rules(membrane)
 
-        if len(all_rules_data) > 0:
-            probs = np.array([rule.probability for _,_,_,rule in all_rules_data])
+        if len(rules) > 0:
+            probs = np.array([rule.probability for _,_,_,rule in rules])
             total_prob = probs.sum()
-            indexes = list(range(len(all_rules_data)))
+            indexes = list(range(len(rules)))
 
             if total_prob > 1.0:
                 # Normalize if prob is greater than 1.0
@@ -306,7 +305,7 @@ class PSystem:
                 indexes += [-1]
             rule_idx = np.random.choice(indexes, p=probs)
             if rule_idx != -1:
-                to_apply = all_rules_data[rule_idx]
+                to_apply = rules[rule_idx]
                 self.__add_rule_to_apply(membrane, to_apply)
 
         for child in membrane.children:
@@ -315,21 +314,20 @@ class PSystem:
     def max_par_step(self, membrane: Membrane, trace_file=None):
         """Execute one step of maximally parallel inference.
         
-        Finds applicable rules for a membrane, computes the set of
-        non-extendable sets of rules, and applies one of the sets
-        stochastically. Recursively processes all child membranes.
+        Finds applicable rules for a membrane, computes a random
+        non-extendable set of rules, and applies it. Recursively
+        processes all child membranes.
         
         Args:
             membrane (Membrane): The membrane to process.
             trace_file (file, optional): File object to write trace information.
                 Defaults to None.
         """
-        obj_rules_data, mem_rule_data = self.applicable_rules(membrane)
-        all_rules_data = obj_rules_data + mem_rule_data
-        rules = self.__generate_maximal_group(membrane=membrane, rules=all_rules_data)
+        rules = self.applicable_rules(membrane)
+        group = self.__generate_maximal_group(membrane=membrane, rules=rules)
 
         for type in ['obj', 'mem']:
-            for _, item in rules[type].items():
+            for _, item in group[type].items():
                 rule_data = item['data']
                 count = item['count']
                 self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
