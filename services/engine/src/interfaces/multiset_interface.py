@@ -66,9 +66,9 @@ class MultiSetInterface(ABC):
         return obj
     
     def __or__(self, other: 'MultiSetInterface'):
-        """Compute union of two multisets.
+        """Compute or operator two multisets.
         
-        The union contains all elements from both multisets, with
+        The result contains all elements from both multisets, with
         multiplicity equal to the maximum count in either multiset.
         
         Args:
