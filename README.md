@@ -136,7 +136,7 @@ rule = Rule(
     left=left_multiset,
     right=right_multiset, 
     prob=0.8,
-    prior=2.0,
+    prior=None,
     move=MoveCode.HERE
 )
 ```

@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import List, Union
 from src.enums.constants import MoveCode
 from src.classes.objects_multiset import ObjectsMultiset
 
@@ -15,19 +15,28 @@ class Rule:
     
     A rule defines a transformation from a left-hand side (consumed objects)
     to a right-hand side (produced objects), along with movement instructions,
-    probabilities, and priorities that control rule application.
+    probabilities, and priorities that control its application.
     
     Attributes:
         left (ObjectsMultiset): Objects consumed by the rule (left-hand side).
         right (ObjectsMultiset): Objects produced by the rule (right-hand side).
-        probability (float): Probability of rule application when applicable.
-        priority (float): Priority level for rule selection.
-        move (str): Movement code defining where objects are sent.
-        destination (Union[str, None]): Target membrane identifier for movements.
-        idx (Union[str, None]): Index identifier for membrane-specific operations.
+        probability (float): Probability of applying the rule when applicable.
+        priority (Union[List[str], None]): List of rule IDs that have priority over this rule.
+        move (str): Movement code defining where the produced objects are sent.
+        destination (Union[str, None]): Target membrane identifier for object movement.
+        idx (Union[str, None]): Identifier for priority operations.
+        mem_idx (Union[str, None]): Index identifier for membrane-specific operations.
     """
 
-    def __init__(self, left: ObjectsMultiset, right: ObjectsMultiset, prob: float = 1.0, prior: float = 1.0, move: str = MoveCode.HERE, destination: Union[str, None] = None, idx: Union[str, None] = None):
+    def __init__(self,
+                 left: ObjectsMultiset,
+                 right: ObjectsMultiset,
+                 prob: float = 1.0,
+                 prior: Union[List[str], None] = None,
+                 move: str = MoveCode.HERE,
+                 destination: Union[str, None] = None,
+                 idx: Union[str, None] = None,
+                 mem_idx: Union[str, None] = None):
         """Initialize a new rule.
         
         Args:
@@ -51,6 +60,7 @@ class Rule:
         self._move = move
         self._destination = destination
         self._idx = idx
+        self._mem_idx = mem_idx
 
     def __repr__(self):
         """Return string representation of the rule.
@@ -60,7 +70,7 @@ class Rule:
                  left/right multisets, probability, priority, movement, 
                  destination, and index.
         """
-        return f'Rule(left={self._left.multiset}, right={self._right.multiset}, prob={self._prob}, prior={self._prior}, move={self._move}, destination={self._destination}, idx={self._idx})'
+        return f'Rule(idx={self._idx}, left={self._left.multiset}, right={self._right.multiset}, prob={self._prob}, prior={self._prior}, move={self._move}, destination={self._destination}, mem_idx={self._mem_idx})'
 
 
     @property
@@ -123,10 +133,19 @@ class Rule:
     
     @property
     def idx(self):
+        """Get the rule IDx.
+        
+        Returns:
+            Union[str, None]: Identifier for priority operations.
+        """
+        return self._idx
+    
+    @property
+    def mem_idx(self):
         """Get the index identifier for membrane operations.
         
         Returns:
             Union[str, None]: Index identifier used for membrane-specific 
                               operations, or None if not applicable.
         """
-        return self._idx
+        return self._mem_idx

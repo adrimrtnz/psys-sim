@@ -117,37 +117,33 @@ class PSystem:
         membrane_mem_rules = self._rules.get((membrane.id, SceneObject.MEMBRANE_RULE), [])
 
         app_obj_rules = []              # Rules with defined priorities
-        app_obj_priority_rules = []     # Rules without a priority value
         app_diss_rules = []             # Rules that dissolve the membrane, applied at the end
         app_mem_rules = []              # Rules that move an entire membrane
-        max_priority = -1
+        app_rules_idxs = []             # List of IDs of the applicable rules
 
         for rule in membrane_obj_rules:
             left = rule.left
             if all(membrane.objects.count(obj) >= m for obj, m in left.items()):
                 if rule.priority is not None:
-                    if rule.priority > max_priority:
-                        max_priority = rule.priority
-                        # If we find a more dominant rule over the already seen ones, clear the list
-                        app_obj_priority_rules.clear()
-                    if rule.priority < max_priority:
-                        continue
-                    if rule.move not in (MoveCode.DISS.name, MoveCode.DISS_KEEP.name):
-                        app_obj_rules.append((membrane.id, 0, 0, rule))
-                    else:
-                        app_diss_rules.append((membrane.id, 0, 0, rule))
+                    if not (set(app_rules_idxs) & set(rule.priority)):
+                        if rule.move not in (MoveCode.DISS_KEEP.name, MoveCode.DISS.name):
+                            app_obj_rules.append((membrane.id, 0, 0, rule))
+                        else:
+                            app_diss_rules.append((membrane.id, 0, 0, rule))
+                        app_rules_idxs.append(rule.idx)
                 else:
-                    if rule.move not in (MoveCode.DISS.name, MoveCode.DISS_KEEP.name):
+                    if rule.move not in (MoveCode.DISS.name, MoveCode.DISS.name):
                         app_obj_rules.append((membrane.id, 0, 0, rule))
                     else:
                         app_diss_rules.append((membrane.id, 0, 0, rule))
+                    app_rules_idxs.append(rule.idx)
 
         for i, child in enumerate(membrane.children):
             for rule in membrane_mem_rules:
                 idx = rule.idx
                 if child.id == idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
-        app_obj_rules = app_obj_rules + app_obj_priority_rules + app_diss_rules
+        app_obj_rules = app_obj_rules + app_diss_rules
         return app_obj_rules, list(reversed(app_mem_rules))
     
     def apply_rule(self, membrane: Membrane, data, multiplicity: int = 1):

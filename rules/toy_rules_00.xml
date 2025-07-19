@@ -12,7 +12,7 @@
 <!--en este apartado se describen las reglas de cada membrana-->  
   <membranes>
     <membrane ID="1">
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="1" pb="1.0">
         <lh>
           <BO v="d" m="1"/>
         </lh>
@@ -23,7 +23,7 @@
     </membrane>
 
     <membrane ID="2">
-      <rBO pb="1.0">
+      <rBO id="1" pb="1.0">
         <lh>
           <BO v="b" m="1"/>
         </lh>
@@ -32,7 +32,7 @@
         </rh>
       </rBO>
 
-      <rBO pb="1.0">
+      <rBO id="2" pb="1.0">
         <lh>
           <BO v="d" m="1"/>
         </lh>
@@ -42,7 +42,7 @@
         </rh>
       </rBO>
 
-      <rBO pb="1.0" pr="1.5">
+      <rBO id="3" pb="1.0">
         <lh>
           <BO v="f" m="2"/>
         </lh>
@@ -51,7 +51,7 @@
         </rh>
       </rBO>
 
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="4" pb="1.0" pr="3">
         <lh>
           <BO v="f" m="1"/>
         </lh>
@@ -61,7 +61,7 @@
     </membrane>
 
     <membrane ID="3">
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="1" pb="1.0">
         <lh>
           <BO v="a" m="1"/>
         </lh>
@@ -71,7 +71,7 @@
         </rh>
       </rBO>
 
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="2" pb="1.0">
         <lh>
           <BO v="a" m="1"/>
         </lh>
@@ -80,7 +80,7 @@
         </rh>
       </rBO>
 
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="3" pb="1.0">
         <lh>
           <BO v="f" m="1"/>
         </lh>
