@@ -65,8 +65,8 @@ class PSystem:
         determine one valid multiset of rules to be applied in a single computation
         step, following the "maximally parallel" derivation mode. Instead of
         calculating all possible maximal sets (which is computationally expensive),
-        it randomly selects and applies rules one by one until no more rules can be
-        applied to the remaining objects.
+        it randomly selects rules one by one until no more rules can be applied to
+        the remaining objects.
 
         The process is non-deterministic due to the random selection of rules at
         each iteration and the probabilistic application of each rule. The final
