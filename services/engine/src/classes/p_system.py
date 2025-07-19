@@ -58,25 +58,106 @@ class PSystem:
         """
         self._rules_to_apply.append((membrane, rule_data, multiplicity))
 
-    def __generate_groups(self, membrane: Membrane, rules: List[Rule]):
-        groups = list()
+    def __generate_maximal_group(self, membrane: Membrane, rules: List[Rule]):
+        """Generates a single, non-deterministically chosen, maximal multiset of rules.
+
+        This function implements an efficient, iterative ("greedy") algorithm to
+        determine one valid multiset of rules to be applied in a single computation
+        step, following the "maximally parallel" derivation mode. Instead of
+        calculating all possible maximal sets (which is computationally expensive),
+        it randomly selects and applies rules one by one until no more rules can be
+        applied to the remaining objects.
+
+        The process is non-deterministic due to the random selection of rules at
+        each iteration and the probabilistic application of each rule. The final
+        multiset of rules is guaranteed to be "maximal" because the loop only
+        terminates when the set cannot be extended further.
+
+        The function categorizes the selected rules into two groups: those that
+        affect objects ('obj') and those that affect the membrane itself ('mem'),
+        such as dissolution rules.
+
+        Pseudo-código del algoritmo:
+        1.  Inicializar un 'grupo' de reglas vacío para almacenar el resultado.
+        2.  Crear una copia de los objetos de la membrana para poder modificarlos.
+        3.  Iniciar un bucle que se ejecuta mientras la lista de reglas a
+            considerar no esté vacía.
+        4.  Dentro del bucle:
+            a.  Elegir una regla al azar de la lista de reglas disponibles.
+            b.  Comprobar si la regla es aplicable con los objetos restantes.
+            c.  Si NO es aplicable:
+                i.  Eliminar la regla de la lista de reglas a considerar.
+                ii. Continuar con la siguiente iteración del bucle.
+            d.  Si ES aplicable:
+                i.  Evaluar la probabilidad de la regla. Si la comprobación
+                    probabilística falla, no se aplica la regla, pero el bucle
+                    continúa para dar oportunidad a otras reglas.
+                ii. Si la regla se aplica, añadirla al 'grupo' correspondiente
+                    ('obj' o 'mem'), incrementando su contador.
+                iii. Restar los objetos consumidos por la regla de la copia de
+                    objetos de la membrana.
+        5.  El bucle termina cuando la lista de reglas a considerar se vacía, lo que
+            implica que no se pueden aplicar más reglas a los objetos restantes.
+        6.  Devolver el 'grupo' de reglas final.
+
+        Args:
+            membrane (Membrane): El objeto de la membrana que contiene el
+                multiconjunto actual de objetos sobre los que operar.
+            rules (List): Una lista de todas las reglas inicialmente aplicables
+                en esta membrana. Esta lista se modifica durante la ejecución de
+                la función. Cuando una regla ya no es aplicable, se elimina.
+
+        Returns:
+            Dict: Un diccionario que contiene el multiconjunto de reglas
+                seleccionado, categorizado por su tipo de efecto. La estructura es:
+                {
+                    'obj': {rule_idx: {'count': N, 'data': rule_data},...},
+                    'mem': {rule_idx: {'count': M, 'data': rule_data},...}
+                }
+        """
+
+        group = { 'obj': dict(), 'mem': dict() }
         if len(rules) > 0:
-            group_rules = list()
             original_objects = membrane.objects.copy()
-            for rule_data in rules:
+
+            def select_rule():
+                nonlocal original_objects
+                if len(rules) == 0:
+                    return False
+                
+                index = random.choice(range(len(rules)))
+                rule_data = rules[index]
                 rule = rule_data[-1]
-                prob = rule.probability
-                probs = np.array([prob, 1-prob])
-                indexes = [1, -1]
-                rule_idx = np.random.choice(indexes, p=probs)
-                if rule_idx != -1:
-                    rule_left = rule.left
-                    count = original_objects.count_subsets(rule_left)
-                    if count > 0:
-                        original_objects = original_objects - rule_left
-                        group_rules.append((rule_data, count))
-            groups.append(group_rules)
-        return groups
+
+                # Determine if the rule remains applicable
+                count = original_objects.count_subsets(rule.left)
+
+                if count > 0:
+                    prob = rule.probability
+                    if prob != 1.0:
+                        probs = np.array([prob, 1-prob])
+                        indexes = [1, -1]
+                        rule_idx = np.random.choice(indexes, p=probs)
+                        if rule_idx == -1:
+                            return True
+                    branch = 'obj' if rule.move not in (MoveCode.DISS_KEEP.name, MoveCode.DISS.name) else 'mem'
+                    is_applied = group[branch].get(rule.idx, False)
+                    if is_applied:
+                        group[branch][rule.idx]['count'] = group[branch][rule.idx]['count'] + 1
+                    else:
+                        group[branch][rule.idx] = dict()
+                        group[branch][rule.idx]['count'] = 1
+                        group[branch][rule.idx]['data'] = rule_data
+                    original_objects = original_objects - rule.left                            
+                else:
+                    # Remove the rule if not applicable
+                    del rules[index]
+                return True
+            
+            while select_rule():
+                # Avoiding recursion to prevent stack overflow due to excessive calls
+                pass
+        return group
 
     def print_membranes(self):
         """Print the membrane structure of the system.
@@ -117,7 +198,6 @@ class PSystem:
         membrane_mem_rules = self._rules.get((membrane.id, SceneObject.MEMBRANE_RULE), [])
 
         app_obj_rules = []              # Rules with defined priorities
-        app_diss_rules = []             # Rules that dissolve the membrane, applied at the end
         app_mem_rules = []              # Rules that move an entire membrane
         app_rules_idxs = []             # List of IDs of the applicable rules
 
@@ -126,16 +206,10 @@ class PSystem:
             if all(membrane.objects.count(obj) >= m for obj, m in left.items()):
                 if rule.priority is not None:
                     if not (set(app_rules_idxs) & set(rule.priority)):
-                        if rule.move not in (MoveCode.DISS_KEEP.name, MoveCode.DISS.name):
-                            app_obj_rules.append((membrane.id, 0, 0, rule))
-                        else:
-                            app_diss_rules.append((membrane.id, 0, 0, rule))
+                        app_obj_rules.append((membrane.id, 0, 0, rule))
                         app_rules_idxs.append(rule.idx)
                 else:
-                    if rule.move not in (MoveCode.DISS.name, MoveCode.DISS.name):
-                        app_obj_rules.append((membrane.id, 0, 0, rule))
-                    else:
-                        app_diss_rules.append((membrane.id, 0, 0, rule))
+                    app_obj_rules.append((membrane.id, 0, 0, rule))
                     app_rules_idxs.append(rule.idx)
 
         for i, child in enumerate(membrane.children):
@@ -143,7 +217,6 @@ class PSystem:
                 idx = rule.idx
                 if child.id == idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
-        app_obj_rules = app_obj_rules + app_diss_rules
         return app_obj_rules, list(reversed(app_mem_rules))
     
     def apply_rule(self, membrane: Membrane, data, multiplicity: int = 1):
@@ -253,14 +326,13 @@ class PSystem:
         """
         obj_rules_data, mem_rule_data = self.applicable_rules(membrane)
         all_rules_data = obj_rules_data + mem_rule_data
-        groups_of_rules = self.__generate_groups(membrane=membrane, rules=all_rules_data)
-        print(f'Len grupos {len(groups_of_rules)}')
+        rules = self.__generate_maximal_group(membrane=membrane, rules=all_rules_data)
 
-        if groups_of_rules:
-            rules = random.choice(groups_of_rules)
-            if len(rules) > 0:
-                for (rule_data, count) in rules:
-                    self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
+        for type in ['obj', 'mem']:
+            for _, item in rules[type].items():
+                rule_data = item['data']
+                count = item['count']
+                self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
 
         for child in membrane.children:
             self.max_par_step(child, trace_file=trace_file)
@@ -332,6 +404,8 @@ class PSystem:
                 print(f'{"="*15} STEP {counter} {"="*15}', file=out)
                 self.max_par_step(self._membranes, out)
                 has_applied = self.apply_rules(out)
+                print(f'{"="*15} STEP {counter} {"="*15}')
+                self.print_membranes()
                 # self._membranes.plot_structure(counter)
         finally:
             out.close()
