@@ -94,12 +94,9 @@ class PSystem:
                 i.  Eliminar la regla de la lista de reglas a considerar.
                 ii. Continuar con la siguiente iteración del bucle.
             d.  Si ES aplicable:
-                i.  Evaluar la probabilidad de la regla. Si la comprobación
-                    probabilística falla, no se aplica la regla, pero el bucle
-                    continúa para dar oportunidad a otras reglas.
-                ii. Si la regla se aplica, añadirla al 'grupo' correspondiente
+                i. Añadir la regla al 'grupo' correspondiente
                     ('obj' o 'mem'), incrementando su contador.
-                iii. Restar los objetos consumidos por la regla de la copia de
+                ii. Restar los objetos consumidos por la regla de la copia de
                     objetos de la membrana.
         5.  El bucle termina cuando la lista de reglas a considerar se vacía, lo que
             implica que no se pueden aplicar más reglas a los objetos restantes.
@@ -138,13 +135,6 @@ class PSystem:
                 count = original_objects.count_subsets(rule.left)
 
                 if count > 0:
-                    prob = rule.probability
-                    if prob != 1.0:
-                        probs = np.array([prob, 1-prob])
-                        indexes = [1, -1]
-                        rule_idx = np.random.choice(indexes, p=probs)
-                        if rule_idx == -1:
-                            return True
                     branch = 'obj' if rule.move not in (MoveCode.DISS_KEEP.name, MoveCode.DISS.name) else 'mem'
                     is_applied = group[branch].get(rule.idx, False)
                     if is_applied:
@@ -153,6 +143,7 @@ class PSystem:
                         group[branch][rule.idx] = dict()
                         group[branch][rule.idx]['count'] = 1
                         group[branch][rule.idx]['data'] = rule_data
+                        group[branch][rule.idx]['probability'] = rule.probability 
                     original_objects = original_objects - rule.left                            
                 else:
                     # Remove the rule if not applicable
@@ -316,6 +307,31 @@ class PSystem:
         for child in membrane.children:
             self.min_par_step(child, trace_file=trace_file)
 
+    def __sample_binomial_successes(self, num_trials: int, probability: float):
+        """Draws a single sample from a binomial distribution.
+
+        This utility function determines the number of successful outcomes from
+        a series of independent Bernoulli trials using NumPy's vectorized operations.
+        This is statistically equivalent to drawing one sample from a binomial
+        distribution B(n, p), where n is num_trials and p is the probability.
+
+        It is used to calculate how many potential rule applications actually
+        occur, given a specific probability for each.
+
+        Args:
+            num_trials (int): The number of trials to perform, corresponding
+                to the number of potential rule applications.
+            probability (float): The probability of success (i.e., the rule is
+                applied) for each trial. Must be between 0.0 and 1.0.
+
+        Returns:
+            int: The total number of successful trials, an integer between 0
+                and num_trials.
+        """
+        if num_trials == 0:
+            return 0
+        return int((np.random.random(num_trials) < probability).sum())
+
     def max_par_step(self, membrane: Membrane, trace_file=None):
         """Execute one step of maximally parallel inference.
         
@@ -335,6 +351,9 @@ class PSystem:
             for _, item in group[type].items():
                 rule_data = item['data']
                 count = item['count']
+                probability = item['probability']
+                if probability < 1.0:
+                    count = self.__sample_binomial_successes(num_trials=count, probability=probability)
                 self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
 
         for child in membrane.children:
