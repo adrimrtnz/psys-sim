@@ -48,6 +48,7 @@ Rules=rules_00
 
 [Runtime]
 Inference=minpar
+Seed=42
 MaxSteps=4
 ```
 

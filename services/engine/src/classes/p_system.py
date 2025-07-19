@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from src.classes.rule import Rule
 from src.classes.membrane import Membrane
@@ -47,6 +47,11 @@ class PSystem:
         self._out = out
         self._inference = inference
         self._rules_to_apply = []
+
+    def seed(self, seed: Union[int, None]= None):
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed=seed)
 
     def __add_rule_to_apply(self, membrane:Membrane, rule_data: Tuple, multiplicity : int = 1):
         """Add a rule to the list of rules to be applied.

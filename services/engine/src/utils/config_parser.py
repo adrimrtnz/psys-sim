@@ -17,6 +17,7 @@ class ConfigParser:
         self._rules  = self.__read_field(tag='Input', field='Rules', default='')
         self._infer  = self.__read_field(tag='Runtime', field='Inference', default=InferenceType.MIN_PARALLEL)
         self._msteps = self.__read_field(tag='Runtime', field='MaxSteps', default=None, dtype=int)
+        self._seed   = self.__read_field(tag='Runtime', field='Seed', default=None, dtype=int)
 
     def __read_field(self, tag: str, field: str, default, dtype: type = None):
         try:
@@ -43,3 +44,7 @@ class ConfigParser:
     @property
     def max_steps(self):
         return self._msteps
+
+    @property
+    def seed(self):
+        return self._seed

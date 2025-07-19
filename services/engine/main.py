@@ -27,6 +27,9 @@ if __name__ == '__main__':
     config = ConfigParser()
     parser = SceneParserFactory(config)
     system = parser.parse()
+
+    # Control randomness
+    system.seed(config.seed)
     
     print('\n========================== RULES ===========================')
     system.print_rules()
