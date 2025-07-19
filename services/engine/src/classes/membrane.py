@@ -127,9 +127,7 @@ class Membrane:
 
     def apply_dissolve_to_parent_rule(self, rule: Rule):
         self.apply_here_rule(rule=rule, multiplicity=1)
-        print(f'        - Objetos del padre antes {self.parent.objects}')
         self.parent.objects = self.parent.objects + self.objects
-        print(f'        - Objetos del padre después {self.parent.objects}')
         self.parent.children.remove(self)
         del self
 
