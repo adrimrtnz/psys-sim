@@ -94,9 +94,12 @@ class PSystem:
                 i.  Eliminar la regla de la lista de reglas a considerar.
                 ii. Continuar con la siguiente iteración del bucle.
             d.  Si ES aplicable:
-                i. Añadir la regla al 'grupo' correspondiente
+                i.  Evaluar la probabilidad de la regla. Si la comprobación
+                    probabilística falla, no se aplica la regla, pero el bucle
+                    continúa para dar oportunidad a otras reglas.
+                ii. Si la regla se aplica, añadirla al 'grupo' correspondiente
                     ('obj' o 'mem'), incrementando su contador.
-                ii. Restar los objetos consumidos por la regla de la copia de
+                iii. Restar los objetos consumidos por la regla de la copia de
                     objetos de la membrana.
         5.  El bucle termina cuando la lista de reglas a considerar se vacía, lo que
             implica que no se pueden aplicar más reglas a los objetos restantes.
@@ -135,6 +138,13 @@ class PSystem:
                 count = original_objects.count_subsets(rule.left)
 
                 if count > 0:
+                    prob = rule.probability
+                    if prob != 1.0:
+                        probs = np.array([prob, 1-prob])
+                        indexes = [1, -1]
+                        rule_idx = np.random.choice(indexes, p=probs)
+                        if rule_idx == -1:
+                            return True
                     branch = 'obj' if rule.move not in (MoveCode.DISS_KEEP.name, MoveCode.DISS.name) else 'mem'
                     is_applied = group[branch].get(rule.idx, False)
                     if is_applied:
@@ -143,7 +153,6 @@ class PSystem:
                         group[branch][rule.idx] = dict()
                         group[branch][rule.idx]['count'] = 1
                         group[branch][rule.idx]['data'] = rule_data
-                        group[branch][rule.idx]['probability'] = rule.probability 
                     original_objects = original_objects - rule.left                            
                 else:
                     # Remove the rule if not applicable
@@ -154,7 +163,7 @@ class PSystem:
                 # Avoiding recursion to prevent stack overflow due to excessive calls
                 pass
         return group
-
+    
     def print_membranes(self):
         """Print the membrane structure of the system.
         
@@ -351,9 +360,6 @@ class PSystem:
             for _, item in group[type].items():
                 rule_data = item['data']
                 count = item['count']
-                probability = item['probability']
-                if probability < 1.0:
-                    count = self.__sample_binomial_successes(num_trials=count, probability=probability)
                 self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
 
         for child in membrane.children:
