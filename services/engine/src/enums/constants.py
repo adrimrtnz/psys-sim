@@ -29,9 +29,6 @@ class MoveCode(Enum):
             to another region at the same level.
         MEMwOB (int): Move membranes with some specific object inside.
         DMEM (int): MEM operation but does the transmission at the moment.
-    
-    Note:
-        TODO: Review all names to make them more meaningful.
     """
     HERE = 1
     OUT = 2
