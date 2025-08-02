@@ -89,6 +89,14 @@
         </rh>
       </rBO>
     </membrane>
-
   </membranes>
+
+  <output>
+    <treecount>
+      <membrane id="1">
+        <showv value="e"/>
+      </membrane>
+    </treecount>
+  </output>
+
 </model>         
