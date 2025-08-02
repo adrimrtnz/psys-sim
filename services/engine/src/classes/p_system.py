@@ -3,6 +3,7 @@ import numpy as np
 
 from typing import Dict, List, Tuple, Union
 
+from src.utils.aux import creation_time_str, create_log_file, RUNS_PATH, OUTPUT_FORMAT
 from src.classes.rule import Rule
 from src.classes.membrane import Membrane
 from src.enums.constants import InferenceType, MoveCode, SceneObject
@@ -26,32 +27,70 @@ class PSystem:
         alpha (Tuple): Alphabet of objects used in the system.
         membranes (Membrane): Root membrane containing the membrane structure.
         rules (Dict[str, Rule]): Dictionary mapping membrane IDs to their rules.
-        out (str): Output membrane identifier (optional).
+        out (Union[Dict, None]): Output membrane identifier and output objects (optional).
         inference (str): Inference mode for rule application.
         rules_to_apply (List): List of rules pending application.
     """
 
-    def __init__(self, alpha: Tuple, membranes: Membrane, rules: Dict[str, Rule], out: str=None, inference: str=InferenceType.MIN_PARALLEL):
+    def __init__(self, alpha: Tuple, membranes: Membrane, rules: Dict[str, Rule], out: Union[Dict, None]=None, inference: str=InferenceType.MIN_PARALLEL):
         """Initialize a P-System.
         
         Args:
             alpha (Tuple): Alphabet of objects that can appear in the system.
             membranes (Membrane): Root membrane of the system structure.
             rules (Dict[str, Rule]): Dictionary mapping membrane identifiers to rules.
-            out (str, optional): Identifier of the output membrane. Defaults to None -> out = root membrane.
+            out (Union[Dict, None]): Identifier of the output membrane and objects to be count.
+                                     Defaults to None -> out = root membrane and output all objects.
             inference (str, optional): Inference mode to use. Defaults to MIN_PARALLEL.
         """
         self._alpha = alpha
         self._membranes = membranes
         self._rules = rules
-        self._out = out
+        self._out = self.__configure_output(out)
         self._inference = inference
         self._rules_to_apply = []
+        self._creation_timestamp = creation_time_str()
+        
+        create_log_file(self._creation_timestamp)
+
 
     def seed(self, seed: Union[int, None]= None):
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed=seed)
+
+    def __configure_output(self, output: Union[Dict, None]):
+        if not output:
+            return {'out': self._membranes, 'obj': None}
+        
+        idx = output['id']
+        objects = output['values']
+        
+        def find_node(membranes: Membrane, idx: str):
+            if membranes.id == idx:
+                return membranes
+            for child in membranes.children:
+                membrane = find_node(child, idx)
+                if membrane:
+                    return membrane
+            return None
+
+        membrane = find_node(self._membranes, idx)
+        if not membrane:
+            raise ValueError('Output membrane with id={idx} not found in the system')
+        return {'membrane': membrane, 'objects': objects}
+    
+    def __log_output(self, step: int):
+        path = f'{RUNS_PATH}{self._creation_timestamp}{OUTPUT_FORMAT}'
+        membrane = self._out['membrane']
+        objects = self._out['objects']
+        print(membrane)
+        print(membrane.objects)
+        print(f'Output membrane: {membrane}, objects: {objects}')
+        with open(path, 'a+', encoding='utf-8') as f:
+            for obj in objects:
+                count = membrane.objects.count(obj)
+                f.write(f'{step},{obj},{count}\n')
 
     def __add_rule_to_apply(self, membrane:Membrane, rule_data: Tuple, multiplicity : int = 1):
         """Add a rule to the list of rules to be applied.
@@ -316,31 +355,6 @@ class PSystem:
         for child in membrane.children:
             self.min_par_step(child, trace_file=trace_file)
 
-    def __sample_binomial_successes(self, num_trials: int, probability: float):
-        """Draws a single sample from a binomial distribution.
-
-        This utility function determines the number of successful outcomes from
-        a series of independent Bernoulli trials using NumPy's vectorized operations.
-        This is statistically equivalent to drawing one sample from a binomial
-        distribution B(n, p), where n is num_trials and p is the probability.
-
-        It is used to calculate how many potential rule applications actually
-        occur, given a specific probability for each.
-
-        Args:
-            num_trials (int): The number of trials to perform, corresponding
-                to the number of potential rule applications.
-            probability (float): The probability of success (i.e., the rule is
-                applied) for each trial. Must be between 0.0 and 1.0.
-
-        Returns:
-            int: The total number of successful trials, an integer between 0
-                and num_trials.
-        """
-        if num_trials == 0:
-            return 0
-        return int((np.random.random(num_trials) < probability).sum())
-
     def max_par_step(self, membrane: Membrane, trace_file=None):
         """Execute one step of maximally parallel inference.
         
@@ -425,15 +439,16 @@ class PSystem:
         try:
             out = open('../../plots/run_trace.txt', 'w+', encoding='utf-8')
             has_applied = True
-            counter = 0
-            self._membranes.plot_structure(counter)
-            while has_applied and (max_steps is None or counter < max_steps):
-                counter += 1
-                print(f'{"="*15} STEP {counter} {"="*15}', file=out)
+            step = 0
+            self._membranes.plot_structure(step)
+            while has_applied and (max_steps is None or step < max_steps):
+                step += 1
+                print(f'{"="*15} STEP {step} {"="*15}', file=out)
                 self.max_par_step(self._membranes, out)
                 has_applied = self.apply_rules(out)
-                print(f'{"="*15} STEP {counter} {"="*15}')
+                print(f'{"="*15} STEP {step} {"="*15}')
                 self.print_membranes()
+                self.__log_output(step)
                 # self._membranes.plot_structure(counter)
         finally:
             out.close()
