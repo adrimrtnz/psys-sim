@@ -188,6 +188,29 @@ def example_function(param1: int, param2: str) -> bool:
     pass
 ```
 
+## 📝 Build the HTML Documentation
+
+To generate the project's documentation locally, follow these steps. The documentation is built using Sphinx.
+
+1. Navigate to the documentation directory
+```bash
+cd docs
+```
+
+2. Install the required dependencies:
+
+```bash
+pip install sphinx==8.2.3 sphinx-rtd-theme==3.0.2
+```
+
+3. Build the html file
+
+```bash
+make html
+```
+
+4. View the documentation: After the build process is complete, you can find the generated site in the `docs/build/html` directory. Open the `index.html` file in your browser to view the documentation.
+
 ## 📚 References
 
 - Păun, Gheorghe. "Membrane Computing: An Introduction." Springer, 2002.
