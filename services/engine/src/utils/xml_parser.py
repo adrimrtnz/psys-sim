@@ -9,7 +9,27 @@ from src.classes.p_system import PSystem
 from src.enums.constants import SceneObject
 
 class XMLInputParser:
+    """Parser for XML configuration files defining P-system scenes and rules.
+
+    This class handles the parsing of XML files that define P-system configurations,
+    including membrane structures, objects, and evolution rules. It processes both
+    scene files (defining the initial membrane structure and objects) and rule files
+    (defining the evolution rules for the system).
+    """
+
     def __init__(self, config):
+
+        """Initialize the XMLInputParser with configuration settings.
+        
+        Args:
+            config: Configuration object containing scene and rules file names,
+                along with other system parameters like inference settings.
+        
+        Note:
+            The constructor automatically loads and parses the XML files specified
+            in the config object. Scene and rules files are expected to be located
+            in '../../scenes/' and '../../rules/' directories respectively.
+        """
         scene_doc = minidom.parse(f'../../scenes/{config.scene}.xml')
         
         self._config = config
@@ -17,6 +37,23 @@ class XMLInputParser:
         self._scene_root = scene_doc.getElementsByTagName('config')[0]
 
     def iterate_scene_node(self, node, parent : None | Membrane = None ) -> Membrane:
+        """Recursively parse scene XML nodes to build the membrane structure.
+        
+        Traverses the XML scene tree and constructs the corresponding membrane
+        hierarchy with their contained objects. Creates parent-child relationships
+        between membranes and populates them with their initial object multisets.
+        
+        Args:
+            node: XML node to process (typically the root config node).
+            parent: Parent membrane for the current node, None for root membrane.
+            
+        Returns:
+            Membrane: The root membrane of the constructed hierarchy.
+            
+        Note:
+            This method handles both MEMBRANE and OBJECT node types, creating
+            the appropriate data structures and relationships between them.
+        """
         for child in node.childNodes:
             if child.nodeType == minidom.Node.ELEMENT_NODE:
                 attr = self.__get_node_attributes(child)
@@ -36,11 +73,31 @@ class XMLInputParser:
         return parent
     
     def iterate_rules_node(self, node: minidom.Document) -> Tuple[List[str], Dict]:
+        """Parse the rules XML document to extract alphabet, rules, and output configuration.
+        
+        Processes the rules XML file to extract the system alphabet, evolution rules
+        for each membrane, and output configuration. Rules are organized by membrane
+        ID and rule type (object rules vs membrane rules).
+        
+        Args:
+            node: XML document containing the rules configuration.
+            
+        Returns:
+            Tuple containing:
+                - List[str]: Alphabet of objects used in the system.
+                - Dict: Mapping of (membrane_id, rule_type) to lists of Rule objects.
+                - Dict: Output configuration specifying which objects to collect.
+                
+        Note:
+            The rules mapping uses tuples of (membrane_id, rule_type) as keys,
+            where rule_type is either OBJECT_RULE or MEMBRANE_RULE.
+        """
         alphabet = []
         rules_mapping = dict()
 
         alphabet_node = node.getElementsByTagName('alphabet')[0].getElementsByTagName('v')
         membranes = node.getElementsByTagName('membranes')[0]
+        output = self.__get_output_rules(node)
 
         for item in alphabet_node:
             alphabet.append(item.getAttribute('value'))
@@ -63,9 +120,54 @@ class XMLInputParser:
                     membrane_mem_rules.append(built_rule)
                 rules_mapping[idx, SceneObject.OBJECT_RULE] = membrane_obj_rules
                 rules_mapping[idx, SceneObject.MEMBRANE_RULE] = membrane_mem_rules
-        return alphabet, rules_mapping
+        return alphabet, rules_mapping, output
+    
+    def __get_output_rules(self, node: minidom.Document) -> Dict[str, List[str]] | None:
+        """Extract output rules from an XML node.
+        
+        Args:
+            node: XML document containing the output configuration.
+            
+        Returns:
+            Dict with membrane 'id' and list of 'values' or None if no output node is found.
+            
+        Raises:
+            ValueError: If more than one output membrane is specified, as the simulation
+                is limited to collecting output from a single membrane.
+        """
+        try:
+            output_node = node.getElementsByTagName('output')[0]
+        except IndexError:
+            return None
+        
+        membranes = output_node.getElementsByTagName('membrane')
+        if len(membranes) > 1:
+            raise ValueError('The simulation is limited to collecting output from a single membrane.')
+        output_membrane = membranes[0]
+        membrane_id = output_membrane.getAttribute('id')
+        output_values = [
+            item.getAttribute('value')
+            for item in output_membrane.getElementsByTagName('showv')
+        ]
+        return {'id': membrane_id, 'values': output_values}
 
     def __build_obj_rule(self, rule_node) -> Rule:
+        """Build an object evolution rule from an XML rule node.
+        
+        Parses an XML object rule node and constructs a Rule object with
+        left-hand side objects, right-hand side objects, probability,
+        priority, and movement/destination information.
+        
+        Args:
+            rule_node: XML node representing an object evolution rule.
+            
+        Returns:
+            Rule: Constructed rule object with all parsed attributes.
+            
+        Note:
+            If no probability is specified, defaults to 1.0. Movement and
+            destination are extracted from the right-hand side if present.
+        """
         idx = rule_node.getAttribute('id')
         probability = float(rule_node.getAttribute('pb')) if rule_node.getAttribute('pb') else 1.0
         priority = self.__extract_rule_priority(rule_node=rule_node)
@@ -81,8 +183,20 @@ class XMLInputParser:
         return rule
     
     def __build_mem_rule(self, rule_node) -> Rule:
+        """Build a membrane evolution rule from an XML rule node.
+        
+        Parses an XML membrane rule node and constructs a Rule object with
+        membrane-specific attributes including membrane index for operations
+        that affect membrane structure.
+        
+        Args:
+            rule_node: XML node representing a membrane evolution rule.
+            
+        Returns:
+            Rule: Constructed rule object with membrane-specific attributes.
+        """
         idx = rule_node.getAttribute('id')
-        probability = float(rule_node.getAttribute('pb'))
+        probability = float(rule_node.getAttribute('pb')) if rule_node.getAttribute('pb') else 1.0
         priority = self.__extract_rule_priority(rule_node=rule_node)
         left_objects, _, _, _ = self.__extract_rule_membrane_objects(rule_node.getElementsByTagName(SceneObject.RULE_LH))
         right_objects, move, dest, mem_idx = self.__extract_rule_membrane_objects(rule_node.getElementsByTagName(SceneObject.RULE_RH))
@@ -97,6 +211,24 @@ class XMLInputParser:
         return rule
 
     def __extract_rule_objects(self, nodes) -> Tuple[Dict, str | None]:
+        """Extract objects from rule nodes and determine movement/destination.
+        
+        Parses object nodes within rule definitions to create an ObjectsMultiset
+        and extract movement and destination information for the rule.
+        
+        Args:
+            nodes: List of XML nodes containing object definitions.
+            
+        Returns:
+            Tuple containing:
+                - ObjectsMultiset: Collection of objects with their multiplicities.
+                - str | None: Movement type if specified.
+                - str | None: Destination membrane if specified.
+                
+        Note:
+            Returns empty ObjectsMultiset and None values if no nodes are provided.
+            Movement and destination are only extracted from right-hand side nodes.
+        """
         out = ObjectsMultiset()
         if len(nodes) == 0:
             return out, None, None
@@ -111,34 +243,76 @@ class XMLInputParser:
         return out, move, dest
     
     def __extract_rule_membrane_objects(self, nodes) -> Tuple[Dict, str | None]:
+        """Extract objects and membrane information from membrane rule nodes.
+        
+        Specialized extraction method for membrane rules that includes membrane
+        index information in addition to the standard object extraction.
+        
+        Args:
+            nodes: List of XML nodes containing membrane rule definitions.
+            
+        Returns:
+            Tuple containing:
+                - ObjectsMultiset: Collection of objects with their multiplicities.
+                - str | None: Movement type if specified.
+                - str | None: Destination membrane if specified.
+                - str: Membrane index for the rule operation.
+                
+        Note:
+            Returns empty dict and None values if no nodes are provided.
+            The membrane index is extracted from the MEMwOB element.
+        """
         if len(nodes) == 0:
             return dict(), None, None
         mem_idx = nodes[0].getElementsByTagName('MEMwOB')[0].getAttribute('id')
         return *self.__extract_rule_objects(nodes), mem_idx
     
     def __extract_rule_priority(self, rule_node):
+        """Extract priority information from a rule node.
+        
+        Parses the priority attribute from a rule node and converts it to
+        a list of priority values for rule application ordering.
+        
+        Args:
+            rule_node: XML node containing rule definition.
+            
+        Returns:
+            List[str] | None: List of priority values split by comma,
+                or None if no priority is specified or rule has no ID.
+                
+        Note:
+            Priority values are comma-separated in the XML and split into
+            a list for processing. Returns None for rules without IDs.
+        """
+        idx = rule_node.getAttribute('id')
+        if idx == '':
+            return None
         priority = rule_node.getAttribute('pr')
         if priority:
             return priority.split(',')
         return None
 
-    def __flatten_membrane_tree(self, root: Membrane):
-        """
-        Flatten the membrane tree into a dictionary to O(1) access time.
-
-        (WIP): Repensar esto, porque al tener membranas con mismo nombre (e.g. h1) colisiona
-        """
-        out = dict()
-        membrane_queue = deque([root])        
-
-        while membrane_queue:
-            membrane = membrane_queue.popleft()
-            out[membrane.id] = membrane
-            membrane_queue.extend(membrane.children)
-        return out
-
     @staticmethod
     def __get_node_attributes(node) -> List[str] | None:
+        """Extract attributes from XML nodes based on node type.
+        
+        Static method that parses XML node attributes and returns them in
+        the appropriate format based on whether the node represents an
+        object or a membrane.
+        
+        Args:
+            node: XML node to extract attributes from.
+            
+        Returns:
+            List containing:
+                - For OBJECT nodes: [value, multiplicity]
+                - For MEMBRANE nodes: [id, multiplicity, capacity]
+                - None for unrecognized node types.
+                
+        Note:
+            Multiplicity and capacity values are converted to integers,
+            while IDs and values remain as strings.
+        """
         if node.nodeName == SceneObject.OBJECT:
             bo_v = node.getAttribute('v')
             bo_mul = int(node.getAttribute('m'))
@@ -151,12 +325,25 @@ class XMLInputParser:
         return None
 
     def parse(self) -> PSystem:
-        alphabet, rules = self.iterate_rules_node(self._rules)
+        """Parse the loaded XML files and construct a complete P-system.
+        
+        Main parsing method that orchestrates the extraction of all system
+        components from the loaded XML files and constructs a complete
+        PSystem object ready for simulation.
+        
+        Returns:
+            PSystem: object containing alphabet, rules, membrane structure,
+            output configuration, and inference settings.
+                
+        Note:
+            This method combines the results from scene and rules parsing to
+            create a unified system representation.
+        """
+        alphabet, rules, output = self.iterate_rules_node(self._rules)
         membrane_root = self.iterate_scene_node(self._scene_root)
-        # membranes = self.__flatten_membrane_tree(membrane_root)
         system = PSystem(alpha=alphabet,
                          rules=rules,
                          membranes=membrane_root,
-                         out=membrane_root.id,
+                         out=output,
                          inference=self._config.inference)
         return system
