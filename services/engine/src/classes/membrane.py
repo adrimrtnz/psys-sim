@@ -121,7 +121,7 @@ class Membrane:
 
     def apply_move_mem_rule(self, rule: Rule, destination: 'Membrane', child_idx: int):
         child = self.remove_child(child_idx)
-        child.apply_here_rule(rule)
+        child.apply_here_rule(rule, multiplicity=1)
         destination.add_child(child)
         child.parent = destination
 

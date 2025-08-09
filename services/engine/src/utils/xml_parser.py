@@ -113,10 +113,14 @@ class XMLInputParser:
                 membrane_mem_rules = []
                 for rule in obj_rules:
                     built_rule = self.__build_obj_rule(rule)
+                    if not built_rule.idx:
+                        built_rule.idx = len(membrane_obj_rules)
                     membrane_obj_rules.append(built_rule)
 
                 for rule in mem_rules:
                     built_rule = self.__build_mem_rule(rule)
+                    if not built_rule.idx:
+                        built_rule.idx = len(membrane_obj_rules) + len(membrane_mem_rules)
                     membrane_mem_rules.append(built_rule)
                 rules_mapping[idx, SceneObject.OBJECT_RULE] = membrane_obj_rules
                 rules_mapping[idx, SceneObject.MEMBRANE_RULE] = membrane_mem_rules

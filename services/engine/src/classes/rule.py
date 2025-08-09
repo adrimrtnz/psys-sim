@@ -140,6 +140,18 @@ class Rule:
         """
         return self._idx
     
+    @idx.setter
+    def idx(self, value):
+        """Set the rule IDx if it does not have any yet
+        
+        Returns:
+            bool: whether the value was set or not
+        """
+        if self._idx == '' or self._idx == None:
+            self._idx = value
+            return True
+        return False
+    
     @property
     def mem_idx(self):
         """Get the index identifier for membrane operations.

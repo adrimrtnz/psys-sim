@@ -160,7 +160,7 @@ class PSystem:
                 }
         """
 
-        group = { 'obj': dict(), 'mem': dict() }
+        group = { 'obj': dict(), 'mem': dict(), 'move': dict() }
         if len(rules) > 0:
             original_objects = membrane.objects.copy()
 
@@ -173,30 +173,40 @@ class PSystem:
                 rule_data = rules[index]
                 rule = rule_data[-1]
 
-                # Determine if the rule remains applicable
-                count = original_objects.count_subsets(rule.left)
+                # Condición para movimiento de objetos y disolución de membranas
+                if rule.move not in (MoveCode.MEMwOB.name,):
+                    # Determine if the rule remains applicable
+                    count = original_objects.count_subsets(rule.left)
 
-                if count > 0:
-                    prob = rule.probability
-                    if prob != 1.0:
-                        probs = np.array([prob, 1-prob])
-                        indexes = [1, -1]
-                        rule_idx = np.random.choice(indexes, p=probs)
-                        if rule_idx == -1:
-                            return True
-                    branch = 'obj' if rule.move not in (MoveCode.DISS_KEEP.name, MoveCode.DISS.name) else 'mem'
-                    is_applied = group[branch].get(rule.idx, False)
-                    if is_applied:
-                        group[branch][rule.idx]['count'] = group[branch][rule.idx]['count'] + 1
+                    if count > 0:
+                        prob = rule.probability
+                        if prob != 1.0:
+                            probs = np.array([prob, 1-prob])
+                            indexes = [1, -1]
+                            rule_idx = np.random.choice(indexes, p=probs)
+                            if rule_idx == -1:
+                                return True
+                        branch = 'obj' if rule.move not in (MoveCode.DISS_KEEP.name, MoveCode.DISS.name) else 'mem'
+                        is_applied = group[branch].get(rule.idx, False)
+                        if is_applied:
+                            group[branch][rule.idx]['count'] = group[branch][rule.idx]['count'] + 1
+                        else:
+                            group[branch][rule.idx] = dict()
+                            group[branch][rule.idx]['count'] = 1
+                            group[branch][rule.idx]['data'] = rule_data
+                        original_objects = original_objects - rule.left                      
                     else:
-                        group[branch][rule.idx] = dict()
-                        group[branch][rule.idx]['count'] = 1
-                        group[branch][rule.idx]['data'] = rule_data
-                    original_objects = original_objects - rule.left                            
+                        # Remove the rule if not applicable
+                        del rules[index]
+                    return True
+                # Condición para movimiento de membranas
                 else:
-                    # Remove the rule if not applicable
+                    child_idx = rule_data[2]
+                    group['move'][child_idx] = dict()
+                    group['move'][child_idx]['count'] = 1
+                    group['move'][child_idx]['data'] = rule_data
                     del rules[index]
-                return True
+                    return True
             
             while select_rule():
                 # Avoiding recursion to prevent stack overflow due to excessive calls
@@ -258,8 +268,8 @@ class PSystem:
 
         for i, child in enumerate(membrane.children):
             for rule in membrane_mem_rules:
-                idx = rule.idx
-                if child.id == idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
+                mem_idx = rule.mem_idx
+                if child.id == mem_idx and all(child.objects.count(obj) >= m for obj, m in rule.left.items()):
                     app_mem_rules.append((membrane.id, child.id, i, rule))
         return app_obj_rules + list(reversed(app_mem_rules))
     
@@ -376,6 +386,18 @@ class PSystem:
                 count = item['count']
                 self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
 
+        child_indices = list(group['move'].keys())
+        child_indices.sort(reverse=True)
+        
+        for i in child_indices:
+            child_rule = group['move'][i]
+            rule_data = child_rule['data']
+            count = child_rule['count']
+            rule = rule_data[-1]
+            prob = rule.probability
+            if np.random.random() < prob:
+                self.__add_rule_to_apply(membrane=membrane, rule_data=rule_data, multiplicity=count)
+
         for child in membrane.children:
             self.max_par_step(child, trace_file=trace_file)
 
@@ -449,6 +471,6 @@ class PSystem:
                 print(f'{"="*15} STEP {step} {"="*15}')
                 self.print_membranes()
                 self.__log_output(step)
-                # self._membranes.plot_structure(counter)
+                # self._membranes.plot_structure(step)
         finally:
             out.close()
