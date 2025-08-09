@@ -84,13 +84,18 @@ class PSystem:
         path = f'{RUNS_PATH}{self._creation_timestamp}{OUTPUT_FORMAT}'
         membrane = self._out['membrane']
         objects = self._out['objects']
-        print(membrane)
-        print(membrane.objects)
-        print(f'Output membrane: {membrane}, objects: {objects}')
         with open(path, 'a+', encoding='utf-8') as f:
             for obj in objects:
-                count = membrane.objects.count(obj)
+                count = self.__count_object(obj=obj, membrane=membrane)
                 f.write(f'{step},{obj},{count}\n')
+
+    def __count_object(self, obj: str, membrane: Membrane):
+        count = membrane.objects.count(obj)
+
+        for child in membrane.children:
+            count += self.__count_object(obj=obj, membrane=child)
+        return count
+
 
     def __add_rule_to_apply(self, membrane:Membrane, rule_data: Tuple, multiplicity : int = 1):
         """Add a rule to the list of rules to be applied.
@@ -462,6 +467,7 @@ class PSystem:
             out = open('../../plots/run_trace.txt', 'w+', encoding='utf-8')
             has_applied = True
             step = 0
+            self.__log_output(step)
             self._membranes.plot_structure(step)
             while has_applied and (max_steps is None or step < max_steps):
                 step += 1
