@@ -314,8 +314,11 @@ class PSystem:
             case MoveCode.DISS_KEEP.name:
                 trace = f' - Applying DISS_KEEP {membrane.id:>2} -> {rule}'
                 membrane.apply_dissolve_to_parent_rule(rule=rule)
+            case MoveCode.DMEM.name:
+                trace = f' - Applying DMEM {membrane.id:>7} -> {rule}'
+                membrane.apply_dmem_rule(rule=rule, multiplicity=multiplicity)
             case _:
-                trace = f' - NOT Applied {membrane.id:>5} -> {rule}'
+                trace = f' - NOT Applied {membrane.id:>5} -> {multiplicity} x {rule}'
         return trace
 
     def apply_rules(self, trace_file = None):

@@ -3,10 +3,11 @@ from typing import Dict, List, Tuple
 from xml.dom import minidom
 
 from src.classes.rule import Rule
+from src.classes.rule_dmem import RuleDMEM
 from src.classes.objects_multiset import ObjectsMultiset
 from src.classes.membrane import Membrane
 from src.classes.p_system import PSystem
-from src.enums.constants import SceneObject
+from src.enums.constants import SceneObject, MoveCode
 
 class XMLInputParser:
     """Parser for XML configuration files defining P-system scenes and rules.
@@ -177,13 +178,22 @@ class XMLInputParser:
         priority = self.__extract_rule_priority(rule_node=rule_node)
         left_objects, _, _ = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_LH))
         right_objects, move, dest = self.__extract_rule_objects(rule_node.getElementsByTagName(SceneObject.RULE_RH))
-        rule = Rule(idx=idx,
-                    left=left_objects,
-                    right=right_objects,
-                    prob=probability,
-                    prior=priority,
-                    move=move,
-                    destination=dest)
+        match move:
+            case MoveCode.DMEM.name:
+                rule = RuleDMEM(idx=idx,
+                            left=left_objects,
+                            right=right_objects,
+                            prob=probability,
+                            prior=priority,
+                            move=move)
+            case _:
+                rule = Rule(idx=idx,
+                            left=left_objects,
+                            right=right_objects,
+                            prob=probability,
+                            prior=priority,
+                            move=move,
+                            destination=dest)
         return rule
     
     def __build_mem_rule(self, rule_node) -> Rule:
@@ -236,15 +246,35 @@ class XMLInputParser:
         out = ObjectsMultiset()
         if len(nodes) == 0:
             return out, None, None
-        nodes = nodes[0]
-        move = nodes.getAttribute('move') if nodes.nodeName == SceneObject.RULE_RH else None
-        objects = nodes.getElementsByTagName(SceneObject.OBJECT)
-        dest = nodes.getAttribute('destination') if nodes.hasAttribute('destination') else None
-        for obj in objects:
-            value = obj.getAttribute('v')
-            mult = int(obj.getAttribute('m'))
-            out.add_object(value, mult)
-        return out, move, dest
+        if len(nodes) == 1:
+            nodes = nodes[0]
+            move = nodes.getAttribute('move') if nodes.nodeName == SceneObject.RULE_RH else None
+            objects = nodes.getElementsByTagName(SceneObject.OBJECT)
+            dest = nodes.getAttribute('destination') if nodes.hasAttribute('destination') else None
+            for obj in objects:
+                value = obj.getAttribute('v')
+                mult = int(obj.getAttribute('m'))
+                out.add_object(value, mult)
+            return out, move, dest
+        else:
+            moves = []
+            out = dict()
+            for node in nodes:
+                move = node.getAttribute('move') if node.nodeName == SceneObject.RULE_RH else None
+                out[move] = list()
+                objects = node.getElementsByTagName(SceneObject.OBJECT)
+                dest = node.getAttribute('destination') if node.hasAttribute('destination') else MoveCode.HERE.name
+                moves.append(move)
+                for obj in objects:
+                    value = obj.getAttribute('v')
+                    mult = int(obj.getAttribute('m'))
+                    out[move].append((value, mult, dest))
+
+            if MoveCode.DMEM.name in moves:
+                move = MoveCode.DMEM.name
+            else:
+                raise ValueError(f'Not handled rule extraction for moves {moves}.')
+            return out, move, dest
     
     def __extract_rule_membrane_objects(self, nodes) -> Tuple[Dict, str | None]:
         """Extract objects and membrane information from membrane rule nodes.

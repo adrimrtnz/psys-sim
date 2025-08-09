@@ -1,6 +1,9 @@
+import numpy as np
+
 from typing import List
 from src.classes.rule import Rule
 from src.classes.objects_multiset import ObjectsMultiset
+from src.enums.constants import MoveCode
 
 
 class Membrane:
@@ -130,6 +133,29 @@ class Membrane:
         self.parent.objects = self.parent.objects + self.objects
         self.parent.children.remove(self)
         del self
+
+    def apply_dmem_rule(self, rule: Rule, multiplicity: int):
+        # parent -> building where self is
+        parent = self.parent
+        for obj, m in rule.left.items():
+            self.objects.sub_object(obj=obj, multiplicity=m * multiplicity)
+        
+        # for each move there is a list of tuples (object, multiplicity, destination)
+        for move in rule.right.keys():
+            match move:
+                case MoveCode.HERE.name:
+                    for obj, m, _ in rule.right[move]:
+                        self.objects.add_object(obj=obj, multiplicity=m * multiplicity)
+                case MoveCode.DMEM.name:
+                    for obj, m, idx in rule.right[move]:
+                        # targets = aquellas membranas en la misma zona (parent) que no son self y coindicen con el destino
+                        targets = [child for child in parent.children if child is not self and child.id == idx]
+                        # aplicar la probabilidad de la regla por cada target posible
+                        for target in targets:
+                            if np.random.random() < rule.probability:
+                                target.objects.add_object(obj=obj, multiplicity=m * multiplicity)
+                case _:
+                    raise ValueError(f'Case not handled for move="{move}" in rule with DMEM movement')
 
     def print_structure(self, level=0):
         print(f'{"   " * level}{str(self)}')
