@@ -14,7 +14,6 @@ class Membrane:
         self._parent = parent
         self._children = []
         self._objects = ObjectsMultiset()
-        self._rules = None
 
         self._alive = True
         self._step = 0
@@ -71,14 +70,6 @@ class Membrane:
         if not isinstance(new_value, ObjectsMultiset):
             raise TypeError(f'Expected ObjectsMultiset, got {type(new_value).__name__}')
         self._objects = new_value
-    
-    @property
-    def rules(self):
-        return self._rules
-    
-    @rules.setter
-    def rules(self, new_rules):
-        self._rules = new_rules
     
     def add_children(self, value: List['Membrane'] | 'Membrane'):
         """

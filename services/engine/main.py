@@ -1,5 +1,5 @@
 from src.utils.config_parser import ConfigParser
-from src.utils.parser_factory import SceneParserFactory
+from src.utils.parser_factory import ParserFactory
 
 
 """
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     and plots are generated during execution.
     """
     config = ConfigParser()
-    parser = SceneParserFactory(config)
+    parser = ParserFactory(config)
     system = parser.parse()
 
     # Control randomness
