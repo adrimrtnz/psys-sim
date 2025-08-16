@@ -323,7 +323,7 @@ class XMLInputParser:
             return None
         priority = rule_node.getAttribute('pr')
         if priority:
-            return priority.split(',')
+            return [prior.strip() for prior in priority.split(',')]
         return None
 
     @staticmethod
