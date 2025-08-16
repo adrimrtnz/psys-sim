@@ -302,26 +302,36 @@ class XMLInputParser:
         return *self.__extract_rule_objects(nodes), mem_idx
     
     def __extract_rule_priority(self, rule_node):
-        """Extract priority information from a rule node.
-        
-        Parses the priority attribute from a rule node and converts it to
-        a list of priority values for rule application ordering.
-        
+        """Extracts and parses the priority of a rule from its XML node.
+
+        This method reads the 'pr' attribute, which defines a rule's priority
+        over other rules. Priority is used to resolve conflicts when multiple
+        rules are applicable in the same simulation step. The attribute value is
+        expected to be a comma-separated string of other rule IDs.
+
+        A rule cannot have a priority defined for it if it does not also have
+        a unique 'id' attribute.
+
         Args:
-            rule_node: XML node containing rule definition.
-            
+            rule_node (Element): The XML element representing a single rule,
+                from which to extract the priority.
+
         Returns:
-            List[str] | None: List of priority values split by comma,
-                or None if no priority is specified or rule has no ID.
-                
-        Note:
-            Priority values are comma-separated in the XML and split into
-            a list for processing. Returns None for rules without IDs.
+            Optional[List[str]]: A list of rule IDs that this rule takes
+            priority over. Returns None if the 'pr' attribute is not specified.
+
+        Raises:
+            ValueError: If the 'pr' attribute is present but the rule's 'id'
+                attribute is missing or empty.
         """
         idx = rule_node.getAttribute('id')
-        if idx == '':
-            return None
         priority = rule_node.getAttribute('pr')
+        if priority and not idx:
+            error_message = (
+                f"Invalid rule configuration: A rule with a priority attribute ('pr'=\"{priority}\") "
+                f"must also have a non-empty 'id' attribute. Please add an 'id' to this rule."
+            )
+            raise ValueError(error_message)
         if priority:
             return [prior.strip() for prior in priority.split(',')]
         return None
