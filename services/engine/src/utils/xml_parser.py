@@ -106,7 +106,7 @@ class XMLInputParser:
 
         for membrane in membranes.childNodes:
             if membrane.nodeName == SceneObject.MEMBRANE:
-                idx = membrane.getAttribute('ID')
+                idx = membrane.getAttribute('id')
                 obj_rules = membrane.getElementsByTagName(SceneObject.OBJECT_RULE)
                 mem_rules = membrane.getElementsByTagName(SceneObject.MEMBRANE_RULE)
                 

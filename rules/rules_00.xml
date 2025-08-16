@@ -32,7 +32,7 @@ Este es el archivo que me describe el funcionamiento del escenario.
 <!--en este apartado se describen las reglas de cada membrana-->  
   <membranes>
 <!--eco es la membrana más externa y la que contiene todo el escenario-->    
-    <membrane ID="eco">
+    <membrane id="eco">
 <!--esta regla es para que veas como es una regla de tipo IN, pero no participa en el escenario
 básicamente coge todos los objetos tonteria que hay en eco y los mete en zone1-->      
       <rBO pb="1.0" pr="1">
@@ -45,7 +45,7 @@ básicamente coge todos los objetos tonteria que hay en eco y los mete en zone1-
       </rBO>
     </membrane>  
 <!--membrana que representa a una persona-->    
-    <membrane ID="h1">
+    <membrane id="h1">
 <!--empezamos una infección con el objeto v1, este objeto sería recivido por una persona para infectarse
 esto transforma el objeto v1 en otros objetos necesarios para simular la infección
 v1cont lo usaremos para contar las horas y cambiar de fase de la infección
@@ -159,7 +159,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
       </rBO>                           
     </membrane>  
 <!--membrana home1-->       
-    <membrane ID="home1">
+    <membrane id="home1">
 <!--regla que mueve personas de este home a zone1-->     
       <rMM pb="0.2" pr="1.0">
         <lh>
@@ -175,7 +175,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
       </rMM>
     </membrane>  
 <!--membrana home2-->  
-    <membrane ID="home2">
+    <membrane id="home2">
 <!--regla que mueve personas de este home a zone1-->     
       <rMM pb="0.2" pr="1.0">
         <lh>
@@ -191,7 +191,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
       </rMM>    
     </membrane> 
 <!--membrana home3-->      
-    <membrane ID="home3">
+    <membrane id="home3">
 <!--regla que mueve personas de este home a zone1-->     
       <rMM pb="0.2" pr="1.0">
         <lh>
@@ -207,7 +207,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
       </rMM>     
     </membrane> 
 <!--membrana home4-->      
-    <membrane ID="home4">
+    <membrane id="home4">
 <!--regla que mueve personas de este home a zone1-->     
       <rMM pb="0.2" pr="1.0">
         <lh>
@@ -223,7 +223,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
       </rMM>     
     </membrane> 
 <!--membrana home5-->      
-    <membrane ID="home5">
+    <membrane id="home5">
 <!--regla que mueve personas de este home a zone1-->     
       <rMM pb="0.2" pr="1.0">
         <lh>
@@ -239,7 +239,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
       </rMM>     
     </membrane>
 <!--membrana zone1-->      
-    <membrane ID="zone1">
+    <membrane id="zone1">
 <!--regla que mueve personas de zone1 a home1
 la persona tiene que tener el objeto home1-->     
       <rMM pb="0.5" pr="1.0">
