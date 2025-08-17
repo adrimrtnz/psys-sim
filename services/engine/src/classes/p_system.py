@@ -122,46 +122,58 @@ class PSystem:
         multiset of rules is guaranteed to be "maximal" because the loop only
         terminates when the set cannot be extended further.
 
-        The function categorizes the selected rules into two groups: those that
-        affect objects ('obj') and those that affect the membrane itself ('mem'),
-        such as dissolution rules.
+        The function categorizes the selected rules into three groups: those that
+        affect objects ('obj'), those that affect the membrane itself ('mem',
+        such as dissolution rules), and those that handle the movement of child
+        membranes ('move').
 
         Pseudo-código del algoritmo:
-        1.  Inicializar un 'grupo' de reglas vacío para almacenar el resultado.
+        1.  Inicializar un 'grupo' de reglas vacío con tres categorías: 'obj',
+            'mem' y 'move'.
         2.  Crear una copia de los objetos de la membrana para poder modificarlos.
         3.  Iniciar un bucle que se ejecuta mientras la lista de reglas a
             considerar no esté vacía.
         4.  Dentro del bucle:
             a.  Elegir una regla al azar de la lista de reglas disponibles.
-            b.  Comprobar si la regla es aplicable con los objetos restantes.
-            c.  Si NO es aplicable:
-                i.  Eliminar la regla de la lista de reglas a considerar.
-                ii. Continuar con la siguiente iteración del bucle.
-            d.  Si ES aplicable:
-                i.  Evaluar la probabilidad de la regla. Si la comprobación
-                    probabilística falla, no se aplica la regla, pero el bucle
-                    continúa para dar oportunidad a otras reglas.
-                ii. Si la regla se aplica, añadirla al 'grupo' correspondiente
-                    ('obj' o 'mem'), incrementando su contador.
-                iii. Restar los objetos consumidos por la regla de la copia de
-                    objetos de la membrana.
-        5.  El bucle termina cuando la lista de reglas a considerar se vacía, lo que
-            implica que no se pueden aplicar más reglas a los objetos restantes.
+            b.  Verificar el tipo de regla:
+                i.  Si es una regla de movimiento de membrana ('move'):
+                    - Añadirla al grupo 'move'.
+                    - Eliminarla de la lista para que no se considere más en
+                      este paso.
+                    - Continuar con la siguiente iteración del bucle.
+                ii. Si es una regla de evolución de objetos o disolución:
+                    - Comprobar si es aplicable con los objetos restantes.
+                    - Si NO es aplicable:
+                        - Eliminar la regla de la lista y continuar.
+                    - Si ES aplicable:
+                        1. Evaluar la probabilidad de la regla. Si la
+                           comprobación probabilística falla, no se aplica la
+                           regla, pero el bucle continúa para dar oportunidad
+                           a otras reglas.
+                        2. Si la regla se aplica, añadirla al 'grupo'
+                           correspondiente ('obj' o 'mem'), incrementando su
+                           contador.
+                        3. Restar los objetos consumidos por la regla de la
+                           copia de objetos.
+        5.  El bucle termina cuando la lista de reglas a considerar se vacía, lo
+            que implica que no se pueden aplicar más reglas a los objetos
+            restantes.
         6.  Devolver el 'grupo' de reglas final.
-
+    
         Args:
             membrane (Membrane): El objeto de la membrana que contiene el
                 multiconjunto actual de objetos sobre los que operar.
-            rules (List): Una lista de todas las reglas inicialmente aplicables
-                en esta membrana. Esta lista se modifica durante la ejecución de
-                la función. Cuando una regla ya no es aplicable, se elimina.
-
+            rules (List): Una lista de todas las reglas potencialmente
+                aplicables en esta membrana. Esta lista se modifica durante la
+                ejecución de la función (las reglas no aplicables se eliminan).
+    
         Returns:
             Dict: Un diccionario que contiene el multiconjunto de reglas
                 seleccionado, categorizado por su tipo de efecto. La estructura es:
                 {
                     'obj': {rule_idx: {'count': N, 'data': rule_data},...},
-                    'mem': {rule_idx: {'count': M, 'data': rule_data},...}
+                    'mem': {rule_idx: {'count': M, 'data': rule_data},...},
+                    'move': {child_idx: {'count': 1, 'data': rule_data},...}
                 }
         """
 
