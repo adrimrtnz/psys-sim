@@ -140,8 +140,8 @@ Por si te lias hay membranas que se llaman home1, home2, ..., home5 y hay objeto
       </membrane> 
 <!--esta es la zona a la que van a ir y volver las personas (representadas por membranas h1)-->      
       <membrane id="zone1" m="1" capacity="10000">
-<!--este objeto "tonteria" no forma parte del minimodelo pero lo pongo para que veas un ejemplo de reglas OUT e IN-->      
-        <BO v="tonteria" m="10"/>
+<!--este objeto "objeto_prueba" no forma parte del minimodelo pero lo pongo para que veas un ejemplo de reglas OUT e IN-->      
+        <BO v="objeto_prueba" m="10"/>
       </membrane>
     </membrane>
   </config>

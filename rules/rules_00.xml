@@ -27,32 +27,42 @@ Este es el archivo que me describe el funcionamiento del escenario.
     <v value="v1infects"/>
     <v value="v1symptoms"/>
     <v value="v1blocked"/>
-    <v value="tonteria"/>
+    <v value="objeto_prueba"/>
   </alphabet>
 <!--en este apartado se describen las reglas de cada membrana-->  
   <membranes>
 <!--eco es la membrana más externa y la que contiene todo el escenario-->    
     <membrane id="eco">
 <!--esta regla es para que veas como es una regla de tipo IN, pero no participa en el escenario
-básicamente coge todos los objetos tonteria que hay en eco y los mete en zone1-->      
-      <rBO pb="1.0" pr="1">
+básicamente coge todos los objetos objeto_prueba que hay en eco y los mete en zone1-->      
+      <rBO pb="1.0" priority="1">
         <lh>
-          <BO v="tonteria" m="1"/>
+          <BO v="objeto_prueba" m="1"/>
         </lh>
         <rh type="bo" move="IN" destination="zone1">
-          <BO v="tonteria" m="1"/>
+          <BO v="objeto_prueba" m="1"/>
         </rh>
       </rBO>
     </membrane>  
 <!--membrana que representa a una persona-->    
     <membrane id="h1">
+    <!--si tenemos el objeto v1blocked y nos infectamos (con v1), antes de que v1 inicie la infección lo borramos-->       
+      <rBO id="r0" pb="1.0">
+        <lh>
+          <BO v="v1blocked" m="1"/>
+          <BO v="v1" m="1"/>
+        </lh>
+        <rh type="bo" move="HERE">
+          <BO v="v1blocked" m="1"/>       
+        </rh>
+      </rBO> 
 <!--empezamos una infección con el objeto v1, este objeto sería recivido por una persona para infectarse
 esto transforma el objeto v1 en otros objetos necesarios para simular la infección
 v1cont lo usaremos para contar las horas y cambiar de fase de la infección
 v1phase1 representa la primera fase de la gripe, todavía no hay síntomas ni se puede infectar
 v1blocked evitará que haya dos infecciones simultaneas de gripe en la misma persona
 -->      
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="r1" pb="1.0" pr="r0">
         <lh>
           <BO v="v1" m="1"/>
         </lh>
@@ -67,7 +77,7 @@ v1blocked evitará que haya dos infecciones simultaneas de gripe en la misma per
 la probabilidad de esta regla es 0.9 con lo que a veces no se ejecutará, esto lo hago para darle un poco 
 de variabildad a los tiempos de la infección (cada vez que no se ejecuta esta regla es una hora más que la infección)
 se queda como está-->            
-      <rBO pb="0.9" pr="0.9">
+      <rBO id="r2" pb="0.9">
         <lh>
           <BO v="v1cont" m="1"/>
         </lh>
@@ -78,7 +88,7 @@ se queda como está-->
       </rBO>
 <!--consumimos 24 objetos v1c (cuando pasen 24 horas) para cambiar de fase del la infección
 en la fase 2 no hay síntomas pero ya se puede infectar (esto se marca con el objeto v1infects)-->        
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="r3" pb="1.0">
         <lh>
           <BO v="v1phase1" m="1"/>
           <BO v="v1c" m="24"/>
@@ -90,7 +100,7 @@ en la fase 2 no hay síntomas pero ya se puede infectar (esto se marca con el ob
       </rBO> 
 <!--consumimos 24 objetos v1c (cuando pasen 24 horas) para cambiar de fase del la infección
 en la fase 3 aparecen los síntomas (se marca con el objeto v1symptoms)-->           
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="r4" pb="1.0">
         <lh>
           <BO v="v1phase2" m="1"/>
           <BO v="v1c" m="24"/>
@@ -102,7 +112,7 @@ en la fase 3 aparecen los síntomas (se marca con el objeto v1symptoms)-->
       </rBO>  
 <!--consumimos 96 objetos v1c (cuando pasen 96 horas) para cambiar de fase del la infección
 en la fase 4 ya no tenemos síntomas (eliminamos el objeto v1symptoms)-->        
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="r5" pb="1.0">
         <lh>
           <BO v="v1phase3" m="1"/>
           <BO v="v1symptoms" m="1"/>
@@ -114,7 +124,7 @@ en la fase 4 ya no tenemos síntomas (eliminamos el objeto v1symptoms)-->
       </rBO> 
 <!--consumimos 24 objetos v1c (cuando pasen 24 horas) para cambiar de fase del la infección
 en la fase 5 ya no se puede infectar (eliminamos el objeto v1infects)-->      
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="r6" pb="1.0">
         <lh>
           <BO v="v1phase4" m="1"/>
           <BO v="v1infects" m="1"/>
@@ -126,27 +136,17 @@ en la fase 5 ya no se puede infectar (eliminamos el objeto v1infects)-->
       </rBO>  
 <!--con 2h objetos v1c (cuando pasen 24 horas) la infección desaparece
 eliminamos todos los objetos relacionados con ellas menos v1blocked pues este simularía inmunidad después de pasar la infección-->       
-      <rBO pb="1.0" pr="1.0">
+      <rBO id="r7" pb="1.0">
         <lh>
           <BO v="v1phase5" m="1"/>
           <BO v="v1cont" m="1"/>
           <v value="v1active"/>
           <BO v="v1c" m="24"/>
         </lh>
-      </rBO>   
-<!--si tenemos el objeto v1blocked y nos infectamos (con v1), antes de que v1 inicie la infección lo borramos-->       
-      <rBO pb="1.0" pr="2.0">
-        <lh>
-          <BO v="v1blocked" m="1"/>
-          <BO v="v1" m="1"/>
-        </lh>
-        <rh type="bo" move="HERE">
-          <BO v="v1blocked" m="1"/>       
-        </rh>
-      </rBO>  
+      </rBO> 
       
 <!--regla de infección, si tenemos v1infects y hay otro h1 en la misma zona le podemos pasar un objeto v1-->       
-      <rBO pb="0.01" pr="0.9">
+      <rBO pb="0.01">
         <lh>
           <BO v="v1infects" m="1"/>
         </lh>
@@ -161,7 +161,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
 <!--membrana home1-->       
     <membrane id="home1">
 <!--regla que mueve personas de este home a zone1-->     
-      <rMM pb="0.2" pr="1.0">
+      <rMM pb="0.2" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="move" m="1"/>
@@ -177,7 +177,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
 <!--membrana home2-->  
     <membrane id="home2">
 <!--regla que mueve personas de este home a zone1-->     
-      <rMM pb="0.2" pr="1.0">
+      <rMM pb="0.2" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="move" m="1"/>
@@ -193,7 +193,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
 <!--membrana home3-->      
     <membrane id="home3">
 <!--regla que mueve personas de este home a zone1-->     
-      <rMM pb="0.2" pr="1.0">
+      <rMM pb="0.2" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="move" m="1"/>
@@ -209,7 +209,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
 <!--membrana home4-->      
     <membrane id="home4">
 <!--regla que mueve personas de este home a zone1-->     
-      <rMM pb="0.2" pr="1.0">
+      <rMM pb="0.2" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="move" m="1"/>
@@ -225,7 +225,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
 <!--membrana home5-->      
     <membrane id="home5">
 <!--regla que mueve personas de este home a zone1-->     
-      <rMM pb="0.2" pr="1.0">
+      <rMM pb="0.2" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="move" m="1"/>
@@ -242,7 +242,7 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
     <membrane id="zone1">
 <!--regla que mueve personas de zone1 a home1
 la persona tiene que tener el objeto home1-->     
-      <rMM pb="0.5" pr="1.0">
+      <rMM pb="0.5" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="home1" m="1"/>
@@ -256,7 +256,7 @@ la persona tiene que tener el objeto home1-->
       </rMM> 
 <!--regla que mueve personas de zone1 a home2
 la persona tiene que tener el objeto home2-->      
-      <rMM pb="0.5" pr="1.0">
+      <rMM pb="0.5" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="home2" m="1"/>
@@ -270,7 +270,7 @@ la persona tiene que tener el objeto home2-->
       </rMM> 
 <!--regla que mueve personas de zone1 a home3
 la persona tiene que tener el objeto home3-->      
-      <rMM pb="0.5" pr="1.0">
+      <rMM pb="0.5" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="home3" m="1"/>
@@ -284,7 +284,7 @@ la persona tiene que tener el objeto home3-->
       </rMM> 
 <!--regla que mueve personas de zone1 a home4
 la persona tiene que tener el objeto home4-->      
-      <rMM pb="0.5" pr="1.0">
+      <rMM pb="0.5" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="home4" m="1"/>
@@ -298,7 +298,7 @@ la persona tiene que tener el objeto home4-->
       </rMM>
 <!--regla que mueve personas de zone1 a home5
 la persona tiene que tener el objeto home5-->                             
-      <rMM pb="0.5" pr="1.0">
+      <rMM pb="0.5" priority="1.0">
         <lh>
           <MEMwOB id="h1" m="1">
             <BO v="home5" m="1"/>
@@ -310,14 +310,14 @@ la persona tiene que tener el objeto home5-->
           </MEMwOB>
         </rh>
       </rMM>   
-<!--esta regla expulsa objetos tonteria a la membrana eco, no es una regla que haga nada para el escenario
+<!--esta regla expulsa objetos objeto_prueba a la membrana eco, no es una regla que haga nada para el escenario
 pero es interesante que la veas-->       
-      <rBO pb="1.0" pr="1">
+      <rBO pb="1.0" priority="1">
         <lh>
-          <BO v="tonteria" m="1"/>
+          <BO v="objeto_prueba" m="1"/>
         </lh>
         <rh type="bo" move="OUT">
-          <BO v="tonteria" m="1"/>
+          <BO v="objeto_prueba" m="1"/>
         </rh>
       </rBO>
     </membrane>                       
