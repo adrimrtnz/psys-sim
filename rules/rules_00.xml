@@ -67,7 +67,7 @@ v1blocked evitará que haya dos infecciones simultaneas de gripe en la misma per
           <BO v="v1" m="1"/>
         </lh>
         <rh type="bo" move="HERE">
-          <v value="v1active"/>
+          <BO v="v1active" m="1"/>
           <BO v="v1cont" m="1"/>
           <BO v="v1phase1" m="1"/>
           <BO v="v1blocked" m="100"/>
@@ -140,9 +140,11 @@ eliminamos todos los objetos relacionados con ellas menos v1blocked pues este si
         <lh>
           <BO v="v1phase5" m="1"/>
           <BO v="v1cont" m="1"/>
-          <v value="v1active"/>
+          <BO v="v1active" m="1"/>
           <BO v="v1c" m="24"/>
         </lh>
+        <rh type="bo" move="HERE">    
+        </rh>
       </rBO> 
       
 <!--regla de infección, si tenemos v1infects y hay otro h1 en la misma zona le podemos pasar un objeto v1-->       
