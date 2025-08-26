@@ -50,9 +50,14 @@ class PSystem:
         self._inference = inference
         self._rules_to_apply = []
         self._creation_timestamp = creation_time_str()
+        self.step = 0
         
         create_log_file(self._creation_timestamp)
 
+
+    @property
+    def output_file(self):
+        return f'{self._creation_timestamp}.csv'
 
     def seed(self, seed: Union[int, None]= None):
         if seed is not None:
@@ -456,14 +461,20 @@ class PSystem:
         try:
             out = open('../../plots/run_trace.txt', 'w+', encoding='utf-8')
             has_applied = True
-            counter = 0
-            self._membranes.plot_structure(counter)
-            while has_applied and (max_steps is None or counter < max_steps):
-                counter += 1
-                print(f'{"="*15} STEP {counter} {"="*15}', file=out)
+            if max_steps is not None:
+                max_steps = max_steps + self.step
+
+            if self.step == 0:
+                self.__log_output(self.step)
+            # self._membranes.plot_structure(self.step)
+            while has_applied and (max_steps is None or self.step < max_steps):
+                self.step += 1
+                print(f'{"="*15} STEP {self.step} {"="*15}', file=out)
                 self.min_par_step(self._membranes, out)
                 has_applied = self.apply_rules(out)
-                self._membranes.plot_structure(counter)
+                # self._membranes.plot_structure(self.step)
+                if has_applied:
+                    self.__log_output(self.step)
         finally:
             out.close()
 
@@ -481,17 +492,20 @@ class PSystem:
         try:
             out = open('../../plots/run_trace.txt', 'w+', encoding='utf-8')
             has_applied = True
-            step = 0
-            self.__log_output(step)
-            self._membranes.plot_structure(step)
-            while has_applied and (max_steps is None or step < max_steps):
-                step += 1
-                print(f'{"="*15} STEP {step} {"="*15}', file=out)
+            if max_steps is not None:
+                max_steps = max_steps + self.step
+            if self.step == 0:
+                self.__log_output(self.step)
+            # self._membranes.plot_structure(self.step)
+            while has_applied and (max_steps is None or self.step < max_steps):
+                self.step += 1
+                print(f'{"="*15} STEP {self.step} {"="*15}', file=out)
                 self.max_par_step(self._membranes, out)
                 has_applied = self.apply_rules(out)
-                print(f'{"="*15} STEP {step} {"="*15}')
+                # print(f'{"="*15} STEP {self.step} {"="*15}')
                 self.print_membranes()
-                self.__log_output(step)
-                # self._membranes.plot_structure(step)
+                if has_applied:
+                    self.__log_output(self.step)
+                # self._membranes.plot_structure(self.step)
         finally:
             out.close()

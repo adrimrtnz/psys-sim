@@ -95,6 +95,9 @@
     <treecount>
       <membrane id="1">
         <showv value="e"/>
+        <showv value="d"/>
+        <showv value="f"/>
+        <showv value="b"/>
       </membrane>
     </treecount>
   </output>
