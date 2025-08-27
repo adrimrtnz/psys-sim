@@ -503,7 +503,7 @@ class PSystem:
                 self.max_par_step(self._membranes, out)
                 has_applied = self.apply_rules(out)
                 # print(f'{"="*15} STEP {self.step} {"="*15}')
-                self.print_membranes()
+                # self.print_membranes()
                 if has_applied:
                     self.__log_output(self.step)
                 # self._membranes.plot_structure(self.step)
