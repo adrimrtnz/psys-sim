@@ -57,6 +57,37 @@ MaxSteps=4
 python main.py
 ```
 
+### Using the GUI
+
+There is a tinny GUI made with [Streamlit](https://streamlit.io/). To use it just follow these commands:
+
+```bash
+# 1. Navigate to the frontend directory
+cd services/front
+
+# 2. Install the required dependencies
+pip install -r requirements.txt
+
+# 3. Start the application
+streamlit run app.py
+```
+
+This should automatically open the url `http://localhost:8501` in your default browser.
+
+#### Additional Options
+
+#### Additional Options
+
+| Option | Example | Description |
+|--------|---------|-------------|
+| `--server.port` | `--server.port 8502` | Runs the app on a specific port (default: 8501). |
+| `--server.address` | `--server.address 0.0.0.0` | Binds the server to a specific address. Useful for Docker/remote servers. |
+| `--server.headless` | `--server.headless true` | Runs without trying to open a browser. Useful on servers without GUI. |
+| `--server.baseUrlPath` | `--server.baseUrlPath myapp` | Serves the app under a subpath, e.g. `http://localhost:8501/myapp`. |
+| `--server.fileWatcherType` | `--server.fileWatcherType none` | Controls how Streamlit watches for file changes. `none` can reduce CPU usage. |
+| `--browser.serverAddress` | `--browser.serverAddress localhost` | Override the address shown in the browser. |
+| `--browser.gatherUsageStats` | `--browser.gatherUsageStats false` | Disable anonymous usage statistics reporting. |
+
 ## 🏗️ Architecture
 
 ### Core Components
