@@ -28,7 +28,7 @@ This simulator implements P-Systems, a computational model inspired by the struc
 ### Installation
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/adrimrtnz/psys-sim.git
 cd p-system-simulator
 # Create a virtual environment
 python -m venv .venv
